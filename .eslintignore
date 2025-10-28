@@ -1,0 +1,9 @@
+# Ignorar carpeta backend de NestJS
+backend/
+backend/**/*
+
+# Ignorar archivos de build
+dist/
+build/
+.next/
+node_modules/
