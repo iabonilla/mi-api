@@ -1,34 +1,34 @@
-import { Controller, Get, Post, Patch, Param, Delete } from "@nestjs/common"
-import type { CentersService } from "./centers.service"
-import type { CreateCenterDto } from "./dto/create-center.dto"
-import type { UpdateCenterDto } from "./dto/update-center.dto"
+import { Controller, Get, Post, Patch, Param, Delete, Body } from "@nestjs/common";
+import { CentersService } from "./centers.service";
+import { CreateCenterDto } from "./dto/create-center.dto";
+import { UpdateCenterDto } from "./dto/update-center.dto";
 
-@Controller("centers")
+@Controller("centros")
 export class CentersController {
   constructor(private readonly centersService: CentersService) {}
 
   @Post()
-  create(createCenterDto: CreateCenterDto) {
-    return this.centersService.create(createCenterDto)
+  create(@Body() createCenterDto: CreateCenterDto) {
+    return this.centersService.create(createCenterDto);
   }
 
   @Get()
   findAll() {
-    return this.centersService.findAll()
+    return this.centersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.centersService.findOne(id)
+  findOne(@Param('id') id: number) {
+    return this.centersService.findOne(id);
   }
 
   @Patch(":id")
-  update(@Param('id') id: string, updateCenterDto: UpdateCenterDto) {
-    return this.centersService.update(id, updateCenterDto)
+  update(@Param('id') id: number, @Body() updateCenterDto: UpdateCenterDto) {
+    return this.centersService.update(id, updateCenterDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.centersService.remove(id)
+  remove(@Param('id') id: number) {
+    return this.centersService.remove(id);
   }
 }

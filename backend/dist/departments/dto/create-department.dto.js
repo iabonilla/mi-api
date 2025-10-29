@@ -18,15 +18,10 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateDepartmentDto.prototype, "name", void 0);
+], CreateDepartmentDto.prototype, "nombre", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateDepartmentDto.prototype, "code", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], CreateDepartmentDto.prototype, "description", void 0);
+], CreateDepartmentDto.prototype, "codigo", void 0);
 //# sourceMappingURL=create-department.dto.js.map

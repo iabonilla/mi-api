@@ -15,6 +15,11 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
+    app.useGlobalPipes(new common_1.ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+    }));
     await app.listen(3005);
     console.log(`🚀 API corriendo en: http://localhost:3005/api`);
 }

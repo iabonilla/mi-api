@@ -1,15 +1,13 @@
-import { IsString, IsNotEmpty, IsOptional } from "class-validator"
+import { IsString, IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateDepartmentDto {
   @IsString()
   @IsNotEmpty()
-  name: string
+  nombre: string; // ← en español, coincide con la BD
 
   @IsString()
   @IsNotEmpty()
-  code: string
+  codigo: string; // ← en español
 
-  @IsString()
-  @IsOptional()
-  description?: string
+  // Elimina "description" si no existe en la entidad
 }

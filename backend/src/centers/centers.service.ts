@@ -1,60 +1,62 @@
-import { Injectable } from "@nestjs/common"
-import type { Repository } from "typeorm"
-import type { Center } from "./entities/center.entity"
-import type { CreateCenterDto } from "./dto/create-center.dto"
-import type { UpdateCenterDto } from "./dto/update-center.dto"
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from "typeorm";
+import { Center } from "./entities/center.entity";
+import { CreateCenterDto } from "./dto/create-center.dto";
+import { UpdateCenterDto } from "./dto/update-center.dto";
 
 @Injectable()
 export class CentersService {
-  constructor(private readonly centersRepository: Repository<Center>) {}
+  constructor(
+    @InjectRepository(Center)
+    private readonly centersRepository: Repository<Center>
+  ) {}
 
   async create(createCenterDto: CreateCenterDto): Promise<Center | null> {
     try {
-      const center = this.centersRepository.create(createCenterDto)
-      return await this.centersRepository.save(center)
+      const center = this.centersRepository.create(createCenterDto);
+      return await this.centersRepository.save(center);
     } catch (error) {
-      return null
+      return null;
     }
   }
 
   async findAll(): Promise<Center[]> {
     try {
-      const centers = await this.centersRepository.find()
-      return centers || []
+      return await this.centersRepository.find({ where: { estado: 1 } });
     } catch (error) {
-      return []
+      return [];
     }
   }
 
-  async findOne(id: string): Promise<Center | null> {
+  async findOne(id: number): Promise<Center | null> { // ← number, no string
     try {
-      const center = await this.centersRepository.findOne({ where: { id } })
-      return center || null
+      return await this.centersRepository.findOne({ where: { id, estado: 1 } });
     } catch (error) {
-      return null
+      return null;
     }
   }
 
-  async update(id: string, updateCenterDto: UpdateCenterDto): Promise<Center | null> {
+  async update(id: number, updateCenterDto: UpdateCenterDto): Promise<Center | null> { // ← number
     try {
-      const center = await this.findOne(id)
-      if (!center) return null
-
-      Object.assign(center, updateCenterDto)
-      return await this.centersRepository.save(center)
+      const center = await this.findOne(id);
+      if (!center) return null;
+      Object.assign(center, updateCenterDto);
+      return await this.centersRepository.save(center);
     } catch (error) {
-      return null
+      return null;
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> { // ← number
     try {
-      const center = await this.findOne(id)
+      const center = await this.findOne(id);
       if (center) {
-        await this.centersRepository.remove(center)
+        center.estado = 0; // eliminación lógica
+        await this.centersRepository.save(center);
       }
     } catch (error) {
-      // Silencioso
+      // silencioso
     }
   }
 }

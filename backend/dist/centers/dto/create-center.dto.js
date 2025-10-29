@@ -18,25 +18,24 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCenterDto.prototype, "name", void 0);
+], CreateCenterDto.prototype, "nombre", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateCenterDto.prototype, "code", void 0);
+], CreateCenterDto.prototype, "codigo", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateCenterDto.prototype, "address", void 0);
+], CreateCenterDto.prototype, "direccion", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
-], CreateCenterDto.prototype, "city", void 0);
+], CreateCenterDto.prototype, "telefono", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
-], CreateCenterDto.prototype, "phone", void 0);
+    __metadata("design:type", Number)
+], CreateCenterDto.prototype, "estado", void 0);
 //# sourceMappingURL=create-center.dto.js.map

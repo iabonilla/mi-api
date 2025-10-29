@@ -1,5 +1,4 @@
 export declare class CreateDepartmentDto {
-    name: string;
-    code: string;
-    description?: string;
+    nombre: string;
+    codigo: string;
 }

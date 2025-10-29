@@ -15,38 +15,30 @@ let Center = class Center {
 };
 exports.Center = Center;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
-    __metadata("design:type", String)
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
 ], Center.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Center.prototype, "name", void 0);
+], Center.prototype, "nombre", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], Center.prototype, "code", void 0);
+], Center.prototype, "codigo", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Center.prototype, "address", void 0);
+], Center.prototype, "direccion", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Center.prototype, "city", void 0);
+], Center.prototype, "telefono", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Center.prototype, "phone", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)(),
-    __metadata("design:type", Date)
-], Center.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
-    __metadata("design:type", Date)
-], Center.prototype, "updatedAt", void 0);
+    (0, typeorm_1.Column)({ type: "bit", default: 1 }),
+    __metadata("design:type", Number)
+], Center.prototype, "estado", void 0);
 exports.Center = Center = __decorate([
-    (0, typeorm_1.Entity)("centers")
+    (0, typeorm_1.Entity)({ name: 'centros', schema: 'academia' })
 ], Center);
 //# sourceMappingURL=center.entity.js.map

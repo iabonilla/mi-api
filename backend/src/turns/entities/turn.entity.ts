@@ -1,25 +1,19 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity("turns")
+@Entity({ name: "turnos", schema: "academia" })
 export class Turn {
-  @PrimaryGeneratedColumn("uuid")
-  id: string
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
-  name: string
-
-  @Column({ unique: true })
-  code: string
+  nombre: string;
 
   @Column({ type: "time" })
-  startTime: string
+  hora_inicio: string;
 
   @Column({ type: "time" })
-  endTime: string
+  hora_fin: string;
 
-  @CreateDateColumn()
-  createdAt: Date
-
-  @UpdateDateColumn()
-  updatedAt: Date
+@Column({ type: "bit", default: 1 })
+estado: number;
 }

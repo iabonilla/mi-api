@@ -15,30 +15,22 @@ let Department = class Department {
 };
 exports.Department = Department;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
-    __metadata("design:type", String)
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
 ], Department.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Department.prototype, "name", void 0);
+], Department.prototype, "nombre", void 0);
 __decorate([
     (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], Department.prototype, "code", void 0);
+], Department.prototype, "codigo", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Department.prototype, "description", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)(),
-    __metadata("design:type", Date)
-], Department.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
-    __metadata("design:type", Date)
-], Department.prototype, "updatedAt", void 0);
+    (0, typeorm_1.Column)({ type: "bit", default: 1 }),
+    __metadata("design:type", Number)
+], Department.prototype, "estado", void 0);
 exports.Department = Department = __decorate([
-    (0, typeorm_1.Entity)("departments")
+    (0, typeorm_1.Entity)({ name: 'departamentos', schema: 'academia' })
 ], Department);
 //# sourceMappingURL=department.entity.js.map

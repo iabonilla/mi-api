@@ -1,12 +1,13 @@
 import { Injectable } from "@nestjs/common"
-import type { Repository } from "typeorm"
-import type { Turn } from "./entities/turn.entity"
-import type { CreateTurnDto } from "./dto/create-turn.dto"
-import type { UpdateTurnDto } from "./dto/update-turn.dto"
+import { InjectRepository } from '@nestjs/typeorm'; // ← Asegúrate de tener esta línea
+import { Repository } from "typeorm"
+import { Turn } from "./entities/turn.entity"
+import { CreateTurnDto } from "./dto/create-turn.dto"
+import { UpdateTurnDto } from "./dto/update-turn.dto"
 
 @Injectable()
 export class TurnsService {
-  constructor(private readonly turnsRepository: Repository<Turn>) {}
+  constructor(@InjectRepository(Turn) private readonly turnsRepository: Repository<Turn>) {}
 
   async create(createTurnDto: CreateTurnDto): Promise<Turn | null> {
     try {
@@ -19,14 +20,14 @@ export class TurnsService {
 
   async findAll(): Promise<Turn[]> {
     try {
-      const turns = await this.turnsRepository.find()
+      const turns = await this.turnsRepository.find({ where: { estado:1 } })
       return turns || []
     } catch (error) {
       return []
     }
   }
 
-  async findOne(id: string): Promise<Turn | null> {
+  async findOne(id: number): Promise<Turn | null> {
     try {
       const turn = await this.turnsRepository.findOne({ where: { id } })
       return turn || null
@@ -35,7 +36,7 @@ export class TurnsService {
     }
   }
 
-  async update(id: string, updateTurnDto: UpdateTurnDto): Promise<Turn | null> {
+  async update(id: number, updateTurnDto: UpdateTurnDto): Promise<Turn | null> {
     try {
       const turn = await this.findOne(id)
       if (!turn) return null
@@ -47,7 +48,7 @@ export class TurnsService {
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     try {
       const turn = await this.findOne(id)
       if (turn) {

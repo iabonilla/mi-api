@@ -1,8 +1,6 @@
 export declare class Department {
-    id: string;
-    name: string;
-    code: string;
-    description: string;
-    createdAt: Date;
-    updatedAt: Date;
+    id: number;
+    nombre: string;
+    codigo: string;
+    estado: number;
 }

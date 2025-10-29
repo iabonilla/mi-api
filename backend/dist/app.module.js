@@ -10,10 +10,13 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
-const courses_module_1 = require("./courses/courses.module");
+const cursos_module_1 = require("./cursos/cursos.module");
 const departments_module_1 = require("./departments/departments.module");
 const centers_module_1 = require("./centers/centers.module");
 const turns_module_1 = require("./turns/turns.module");
+const tipo_cursos_module_1 = require("./tipo-cursos/tipo-cursos.module");
+const carreras_module_1 = require("./carreras/carreras.module");
+const tipo_ofertas_module_1 = require("./tipo-ofertas/tipo-ofertas.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -24,20 +27,27 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
             }),
             typeorm_1.TypeOrmModule.forRoot({
-                type: "mysql",
-                host: process.env.DB_HOST || "localhost",
-                port: Number.parseInt(process.env.DB_PORT) || 3306,
-                username: process.env.DB_USERNAME || "root",
-                password: process.env.DB_PASSWORD || "",
-                database: process.env.DB_DATABASE || "academia_idiomas",
-                entities: [__dirname + "/**/*.entity{.ts,.js}"],
-                synchronize: true,
+                type: 'mssql',
+                host: process.env.DB_HOST,
+                port: parseInt(process.env.DB_PORT, 10) || 1433,
+                username: process.env.DB_USERNAME,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_DATABASE,
+                entities: [__dirname + '/**/*.entity{.ts,.js}'],
+                synchronize: false,
                 logging: false,
+                options: {
+                    encrypt: false,
+                    trustServerCertificate: true,
+                },
             }),
-            courses_module_1.CoursesModule,
+            cursos_module_1.CursosModule,
             departments_module_1.DepartmentsModule,
             centers_module_1.CentersModule,
             turns_module_1.TurnsModule,
+            tipo_cursos_module_1.TipoCursosModule,
+            carreras_module_1.CarrerasModule,
+            tipo_ofertas_module_1.TipoOfertasModule,
         ],
     })
 ], AppModule);

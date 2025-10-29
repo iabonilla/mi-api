@@ -1,23 +1,25 @@
-import { IsString, IsNotEmpty, IsOptional } from "class-validator"
+import { IsString, IsNotEmpty, IsOptional } from "class-validator";
 
 export class CreateCenterDto {
   @IsString()
   @IsNotEmpty()
-  name: string
+  nombre: string; // ← coincide con la BD
 
   @IsString()
   @IsNotEmpty()
-  code: string
+  codigo: string; // ← coincide con la BD
 
   @IsString()
   @IsOptional()
-  address?: string
+  direccion?: string; // ← nombre en español
 
   @IsString()
   @IsOptional()
-  city?: string
+  telefono?: string; // ← nombre en español
 
   @IsString()
-  @IsOptional()
-  phone?: string
+  estado ?:number;
+
+  // Nota: "city" NO existe en tu tabla `centros`, así que se omite
+  // Si lo necesitas, añádelo primero en la BD y en la entidad
 }

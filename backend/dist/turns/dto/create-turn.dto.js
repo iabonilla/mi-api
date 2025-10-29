@@ -18,20 +18,21 @@ __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], CreateTurnDto.prototype, "name", void 0);
+], CreateTurnDto.prototype, "nombre", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.Matches)(/^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/, {
+        message: 'hora_inicio debe tener formato HH:mm o HH:mm:ss',
+    }),
     __metadata("design:type", String)
-], CreateTurnDto.prototype, "code", void 0);
+], CreateTurnDto.prototype, "hora_inicio", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.Matches)(/^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/, {
+        message: 'hora_fin debe tener formato HH:mm o HH:mm:ss',
+    }),
     __metadata("design:type", String)
-], CreateTurnDto.prototype, "startTime", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
-], CreateTurnDto.prototype, "endTime", void 0);
+], CreateTurnDto.prototype, "hora_fin", void 0);
 //# sourceMappingURL=create-turn.dto.js.map

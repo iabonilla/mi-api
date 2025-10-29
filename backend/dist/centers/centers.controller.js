@@ -14,6 +14,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CentersController = void 0;
 const common_1 = require("@nestjs/common");
+const centers_service_1 = require("./centers.service");
+const create_center_dto_1 = require("./dto/create-center.dto");
+const update_center_dto_1 = require("./dto/update-center.dto");
 let CentersController = class CentersController {
     constructor(centersService) {
         this.centersService = centersService;
@@ -37,8 +40,9 @@ let CentersController = class CentersController {
 exports.CentersController = CentersController;
 __decorate([
     (0, common_1.Post)(),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Function]),
+    __metadata("design:paramtypes", [create_center_dto_1.CreateCenterDto]),
     __metadata("design:returntype", void 0)
 ], CentersController.prototype, "create", null);
 __decorate([
@@ -51,25 +55,26 @@ __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], CentersController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(":id"),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Function]),
+    __metadata("design:paramtypes", [Number, update_center_dto_1.UpdateCenterDto]),
     __metadata("design:returntype", void 0)
 ], CentersController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], CentersController.prototype, "remove", null);
 exports.CentersController = CentersController = __decorate([
-    (0, common_1.Controller)("centers"),
-    __metadata("design:paramtypes", [Function])
+    (0, common_1.Controller)("centros"),
+    __metadata("design:paramtypes", [centers_service_1.CentersService])
 ], CentersController);
 //# sourceMappingURL=centers.controller.js.map

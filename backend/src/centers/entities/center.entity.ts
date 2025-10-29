@@ -1,28 +1,22 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
 
-@Entity("centers")
+@Entity({ name: 'centros', schema: 'academia' })
 export class Center {
-  @PrimaryGeneratedColumn("uuid")
-  id: string
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
-  name: string
+  nombre: string;
 
   @Column({ unique: true })
-  code: string
+  codigo: string;
 
   @Column({ nullable: true })
-  address: string
+  direccion: string;
 
   @Column({ nullable: true })
-  city: string
-
-  @Column({ nullable: true })
-  phone: string
-
-  @CreateDateColumn()
-  createdAt: Date
-
-  @UpdateDateColumn()
-  updatedAt: Date
+  telefono: string;
+  
+ @Column({ type: "bit", default: 1 })
+estado: number;
 }

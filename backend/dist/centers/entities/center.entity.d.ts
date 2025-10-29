@@ -1,10 +1,8 @@
 export declare class Center {
-    id: string;
-    name: string;
-    code: string;
-    address: string;
-    city: string;
-    phone: string;
-    createdAt: Date;
-    updatedAt: Date;
+    id: number;
+    nombre: string;
+    codigo: string;
+    direccion: string;
+    telefono: string;
+    estado: number;
 }

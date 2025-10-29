@@ -8,9 +8,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TurnsService = void 0;
 const common_1 = require("@nestjs/common");
+const typeorm_1 = require("@nestjs/typeorm");
+const typeorm_2 = require("typeorm");
+const turn_entity_1 = require("./entities/turn.entity");
 let TurnsService = class TurnsService {
     constructor(turnsRepository) {
         this.turnsRepository = turnsRepository;
@@ -26,7 +32,7 @@ let TurnsService = class TurnsService {
     }
     async findAll() {
         try {
-            const turns = await this.turnsRepository.find();
+            const turns = await this.turnsRepository.find({ where: { estado: 1 } });
             return turns || [];
         }
         catch (error) {
@@ -68,6 +74,7 @@ let TurnsService = class TurnsService {
 exports.TurnsService = TurnsService;
 exports.TurnsService = TurnsService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [Function])
+    __param(0, (0, typeorm_1.InjectRepository)(turn_entity_1.Turn)),
+    __metadata("design:paramtypes", [typeorm_2.Repository])
 ], TurnsService);
 //# sourceMappingURL=turns.service.js.map

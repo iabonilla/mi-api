@@ -14,6 +14,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DepartmentsController = void 0;
 const common_1 = require("@nestjs/common");
+const departments_service_1 = require("./departments.service");
+const create_department_dto_1 = require("./dto/create-department.dto");
+const update_department_dto_1 = require("./dto/update-department.dto");
 let DepartmentsController = class DepartmentsController {
     constructor(departmentsService) {
         this.departmentsService = departmentsService;
@@ -37,8 +40,9 @@ let DepartmentsController = class DepartmentsController {
 exports.DepartmentsController = DepartmentsController;
 __decorate([
     (0, common_1.Post)(),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Function]),
+    __metadata("design:paramtypes", [create_department_dto_1.CreateDepartmentDto]),
     __metadata("design:returntype", void 0)
 ], DepartmentsController.prototype, "create", null);
 __decorate([
@@ -51,25 +55,26 @@ __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], DepartmentsController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Patch)(":id"),
     __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Function]),
+    __metadata("design:paramtypes", [Number, update_department_dto_1.UpdateDepartmentDto]),
     __metadata("design:returntype", void 0)
 ], DepartmentsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], DepartmentsController.prototype, "remove", null);
 exports.DepartmentsController = DepartmentsController = __decorate([
-    (0, common_1.Controller)("departments"),
-    __metadata("design:paramtypes", [Function])
+    (0, common_1.Controller)("departmentos"),
+    __metadata("design:paramtypes", [departments_service_1.DepartmentsService])
 ], DepartmentsController);
 //# sourceMappingURL=departments.controller.js.map

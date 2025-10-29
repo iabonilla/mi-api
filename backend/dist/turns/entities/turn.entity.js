@@ -15,34 +15,26 @@ let Turn = class Turn {
 };
 exports.Turn = Turn;
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)("uuid"),
-    __metadata("design:type", String)
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
 ], Turn.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Turn.prototype, "name", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ unique: true }),
-    __metadata("design:type", String)
-], Turn.prototype, "code", void 0);
+], Turn.prototype, "nombre", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "time" }),
     __metadata("design:type", String)
-], Turn.prototype, "startTime", void 0);
+], Turn.prototype, "hora_inicio", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "time" }),
     __metadata("design:type", String)
-], Turn.prototype, "endTime", void 0);
+], Turn.prototype, "hora_fin", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
-    __metadata("design:type", Date)
-], Turn.prototype, "createdAt", void 0);
-__decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
-    __metadata("design:type", Date)
-], Turn.prototype, "updatedAt", void 0);
+    (0, typeorm_1.Column)({ type: "bit", default: 1 }),
+    __metadata("design:type", Number)
+], Turn.prototype, "estado", void 0);
 exports.Turn = Turn = __decorate([
-    (0, typeorm_1.Entity)("turns")
+    (0, typeorm_1.Entity)({ name: "turnos", schema: "academia" })
 ], Turn);
 //# sourceMappingURL=turn.entity.js.map

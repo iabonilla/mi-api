@@ -1,6 +1,6 @@
 export declare class CreateTurnDto {
-    name: string;
-    code: string;
-    startTime: string;
-    endTime: string;
+    nombre: string;
+    hora_inicio: string;
+    hora_fin: string;
+    estado: number;
 }

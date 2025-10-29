@@ -1,0 +1,34 @@
+import { TipoOferta } from '../../tipo-ofertas/entities/tipo-oferta.entity';
+import { TipoCurso } from '../../tipo-cursos/entities/tipo-curso.entity';
+import { Carrera } from '../../carreras/entities/carrera.entity';
+import { Department } from '../../departments/entities/department.entity';
+import { Center } from '../../centers/entities/center.entity';
+import { Turn } from '../../turns/entities/turn.entity';
+export declare class Curso {
+    id: number;
+    nombre: string;
+    codigo: string;
+    descripcion: string;
+    tipo_oferta_id: number;
+    tipo_curso_id: number;
+    carrera_id: number;
+    departamento_id: number;
+    centro_id: number;
+    turno_id: number;
+    capacidad: number;
+    inscritos: number;
+    fecha_inicio: Date;
+    fecha_fin: Date;
+    horario: string;
+    plataforma_virtual: string;
+    enlace_virtual: string;
+    estado: boolean;
+    creado_en: Date;
+    actualizado_en: Date;
+    tipoOferta: TipoOferta;
+    tipoCurso: TipoCurso;
+    carrera: Carrera;
+    departamento: Department;
+    centro: Center;
+    turno: Turn;
+}

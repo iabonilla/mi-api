@@ -22,6 +22,14 @@ async function bootstrap() {
     }),
   )
 
+  // Habilitar validación global
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, // Elimina propiedades que no están en el DTO
+    forbidNonWhitelisted: true, // Lanza error si hay propiedades no permitidas
+    transform: true, // Transforma los tipos automáticamente
+  }));
+
+
   await app.listen(3005)
   console.log(`🚀 API corriendo en: http://localhost:3005/api`)
 }
