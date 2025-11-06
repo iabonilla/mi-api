@@ -1,23 +1,23 @@
 import { apiClient } from "@/lib/api-client"
-import type { Department } from "@/types/course"
+import type { Departamento } from "@/types/course"
 
-const endpoint = "/departments"
+const endpoint = "/departmentos" // Tu endpoint real
 
 export const departmentService = {
-  async getAll(): Promise<Department[]> {
-    return apiClient.get<Department[]>(endpoint)
+  async getAll(): Promise<Departamento[]> {
+    return apiClient.get<Departamento[]>(endpoint)
   },
 
-  async getById(id: string): Promise<Department> {
-    return apiClient.get<Department>(`${endpoint}/${id}`)
+  async getById(id: string): Promise<Departamento> {
+    return apiClient.get<Departamento>(`${endpoint}/${id}`)
   },
 
-  async create(data: Omit<Department, "id" | "createdAt" | "updatedAt">): Promise<Department> {
-    return apiClient.post<Department>(endpoint, data)
+  async create(data: Omit<Departamento, "id">): Promise<Departamento> {
+    return apiClient.post<Departamento>(endpoint, data)
   },
 
-  async update(id: string, data: Partial<Omit<Department, "id" | "createdAt" | "updatedAt">>): Promise<Department> {
-    return apiClient.patch<Department>(`${endpoint}/${id}`, data)
+  async update(id: string, data: Partial<Departamento>): Promise<Departamento> {
+    return apiClient.patch<Departamento>(`${endpoint}/${id}`, data)
   },
 
   async delete(id: string): Promise<void> {

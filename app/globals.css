@@ -1,34 +1,36 @@
+/* globals.css - CORREGIDO */
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.12 0 0);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.16 0 0);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.16 0 0);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.65 0.22 265);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.22 0 0);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.22 0 0);
-  --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.55 0.18 200);
-  --accent-foreground: oklch(0.98 0 0);
+  /* COLORES INSTITUCIONALES SETEC - Basados en el manual y sitio referencia */
+  --background: oklch(0.99 0 0); /* Fondo blanco */
+  --foreground: oklch(0.15 0 0); /* Texto oscuro */
+  --card: oklch(1 0 0); /* Tarjetas blancas */
+  --card-foreground: oklch(0.15 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0 0);
+  --primary: oklch(0.55 0.18 250); /* Azul institucional SETEC */
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0 0); /* Gris muy claro */
+  --secondary-foreground: oklch(0.15 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+  --accent: oklch(0.55 0.18 200); /* Azul/verde para acentos */
+  --accent-foreground: oklch(1 0 0);
   --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.22 0 0);
-  --ring: oklch(0.65 0.22 265);
-  --chart-1: oklch(0.65 0.22 265);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.88 0 0); /* Bordes grises claros */
+  --input: oklch(1 0 0); /* Inputs blancos */
+  --ring: oklch(0.55 0.18 250);
+  --chart-1: oklch(0.55 0.18 250);
   --chart-2: oklch(0.55 0.18 200);
   --chart-3: oklch(0.7 0.15 150);
   --chart-4: oklch(0.6 0.2 300);
   --chart-5: oklch(0.75 0.18 80);
-  --radius: 0.5rem;
+  --radius: 0.375rem; /* Bordes más suaves */
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -40,42 +42,29 @@
 }
 
 .dark {
+  /* Mantenemos modo oscuro pero con colores más suaves */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
+  --card: oklch(0.2 0 0);
   --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
+  --popover: oklch(0.2 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
+  --primary: oklch(0.6 0.18 250);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.25 0 0);
   --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
+  --muted: oklch(0.25 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
+  --accent: oklch(0.6 0.18 200);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.396 0.141 25.723);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --border: oklch(0.3 0 0);
+  --input: oklch(0.25 0 0);
+  --ring: oklch(0.6 0.18 250);
 }
 
 @theme inline {
-  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -100,9 +89,9 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
   --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -114,11 +103,117 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+
+
+
+
+/* Estilos adicionales para imitar el sitio de referencia */
+.header-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+}
+
+/* CORREGIDO: Clases de sombra azul */
+.card-shadow-blue {
+  box-shadow: 0 4px 20px rgba(79, 70, 229, 0.50);
+  border: 1px solid rgba(79, 70, 229, 0.1);
+}
+
+.card-shadow-blue-hover {
+  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
+}
+
+.btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90 transition-colors;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border transition-colors;
+}
+
+
+
+
+
+
+/* globals.css - AGREGAR AL FINAL */
+@layer utilities {
+  /* Contenedores más anchos */
+  .container-wide {
+    @apply w-full max-w-[2000px] mx-auto px-4;
+  }
+  
+  .container-ultra-wide {
+    @apply w-full max-w-[2400px] mx-auto px-6;
+  }
+  
+  /* Para modals y diálogos grandes */
+  .dialog-extra-wide {
+    min-width: 90vw;
+    max-width: 1800px;
+  }
+  
+  .dialog-ultra-wide {
+    min-width: 98vw;
+    max-width: 2000px;
+  }
+  
+  /* Grids más expansivos */
+  .grid-expansive {
+    @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-4;
+  }
+  
+  /* Cards que aprovechen mejor el espacio */
+  .card-expansive {
+    @apply min-h-[200px] w-full;
+  }
+}
+
+/* Mejorar el scroll para contenidos grandes */
+.dialog-content-wide {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Asegurar que los formularios usen todo el espacio disponible */
+.form-wide {
+  @apply w-full max-w-none;
+}
+
+/* CLASES DE SOMBRA INTENSIFICADAS - AGREGADAS */
+.card-shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.card-shadow-md {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-shadow-lg {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* CORREGIDO: Clases de sombra azul INTENSIFICADAS */
+.card-shadow-blue {
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+  border: 1px solid rgba(79, 70, 229, 0.15);
+}
+
+.card-shadow-blue-hover {
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.35);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: system-ui, -apple-system, sans-serif;
   }
 }

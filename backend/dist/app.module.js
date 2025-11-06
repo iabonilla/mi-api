@@ -12,11 +12,14 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const cursos_module_1 = require("./cursos/cursos.module");
 const departments_module_1 = require("./departments/departments.module");
+const municipio_module_1 = require("./municipio/municipio.module");
 const centers_module_1 = require("./centers/centers.module");
 const turns_module_1 = require("./turns/turns.module");
 const tipo_cursos_module_1 = require("./tipo-cursos/tipo-cursos.module");
 const carreras_module_1 = require("./carreras/carreras.module");
 const tipo_ofertas_module_1 = require("./tipo-ofertas/tipo-ofertas.module");
+const idiomas_module_1 = require("./idiomas/idiomas.module");
+const personas_module_1 = require("./persona/personas.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -28,11 +31,11 @@ exports.AppModule = AppModule = __decorate([
             }),
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'mssql',
-                host: process.env.DB_HOST,
-                port: parseInt(process.env.DB_PORT, 10) || 1433,
-                username: process.env.DB_USERNAME,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_DATABASE,
+                host: process.env.DB_HOST_local,
+                port: parseInt(process.env.DB_PORT_local, 10) || 1433,
+                username: process.env.DB_USERNAME_local,
+                password: process.env.DB_PASSWORD_local,
+                database: process.env.DB_DATABASE_local,
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
                 synchronize: false,
                 logging: false,
@@ -43,11 +46,14 @@ exports.AppModule = AppModule = __decorate([
             }),
             cursos_module_1.CursosModule,
             departments_module_1.DepartmentsModule,
+            municipio_module_1.MunicipioModule,
             centers_module_1.CentersModule,
             turns_module_1.TurnsModule,
             tipo_cursos_module_1.TipoCursosModule,
             carreras_module_1.CarrerasModule,
             tipo_ofertas_module_1.TipoOfertasModule,
+            idiomas_module_1.IdiomasModule,
+            personas_module_1.PersonasModule,
         ],
     })
 ], AppModule);

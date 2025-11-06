@@ -1,31 +1,36 @@
+// hooks/use-courses.ts - VERSIÓN CORREGIDA
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import {
-  getAllCourses,
-  createCourse as createCourseApi,
-  updateCourse as updateCourseApi,
-  deleteCourse as deleteCourseApi,
-} from "@/lib/api/courses"
-import type { Course, CreateCourseDto, UpdateCourseDto, CourseFilters } from "@/types/course"
+import { courseService } from "@/services"
+import type { Curso, CreateCursoDto, UpdateCursoDto, CourseFilters } from "@/types/course"
 import { useToast } from "@/hooks/use-toast"
 
 export function useCourses(initialFilters?: CourseFilters) {
-  const [courses, setCourses] = useState<Course[]>([])
+  const [courses, setCourses] = useState<Curso[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [filters, setFilters] = useState<CourseFilters>(initialFilters || {})
   const { toast } = useToast()
 
-  const fetchCourses = useCallback(async () => {
+  // Función para obtener cursos - MANTENER igual
+  const fetchCourses = useCallback(async (filters?: CourseFilters) => {
     try {
       setLoading(true)
       setError(null)
-      const data = await getAllCourses(filters)
+      
+      console.log("🔍 Fetching courses from API with filters:", filters)
+      
+      // LLAMADA REAL A LA API
+      const data = await courseService.getAll(filters)
+      
+      console.log(`📊 API returned ${data.length} courses`)
       setCourses(data)
+      
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error al cargar cursos"
       setError(message)
+      console.error("❌ Error fetching courses:", err)
+      
       toast({
         title: "Error",
         description: message,
@@ -34,17 +39,29 @@ export function useCourses(initialFilters?: CourseFilters) {
     } finally {
       setLoading(false)
     }
-  }, [filters, toast])
+  }, [toast])
 
-  const createCourse = async (data: CreateCourseDto) => {
+  // ✅ EFECTO CORREGIDO: Ejecutar cuando cambien los filtros
+  useEffect(() => {
+    console.log("🎯 Filters changed, fetching courses:", initialFilters)
+    fetchCourses(initialFilters)
+  }, [fetchCourses, initialFilters]) // ← AGREGAR initialFilters a las dependencias
+
+  // ✅ ELIMINAR searchWithFilters - Ya no es necesario
+  // const searchWithFilters = async (newFilters: CourseFilters) => {
+  //   console.log("🎯 Buscando con nuevos filtros:", newFilters)
+  //   await fetchCourses(newFilters)
+  // }
+
+  // Funciones CRUD existentes (mantener igual)...
+  const createCourse = async (data: CreateCursoDto) => {
     try {
-      const newCourse = await createCourseApi(data)
-      setCourses((prev) => [...prev, newCourse])
+      await courseService.create(data)
       toast({
         title: "Éxito",
         description: "Curso creado correctamente",
       })
-      return newCourse
+      await fetchCourses(initialFilters) // ← Usar los filtros actuales
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error al crear curso"
       toast({
@@ -56,15 +73,14 @@ export function useCourses(initialFilters?: CourseFilters) {
     }
   }
 
-  const updateCourse = async (id: string, data: UpdateCourseDto) => {
+  const updateCourse = async (id: string, data: UpdateCursoDto) => {
     try {
-      const updatedCourse = await updateCourseApi(id, data)
-      setCourses((prev) => prev.map((course) => (course.id === id ? updatedCourse : course)))
+      await courseService.update(id, data)
       toast({
         title: "Éxito",
         description: "Curso actualizado correctamente",
       })
-      return updatedCourse
+      await fetchCourses(initialFilters) // ← Usar los filtros actuales
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error al actualizar curso"
       toast({
@@ -78,12 +94,12 @@ export function useCourses(initialFilters?: CourseFilters) {
 
   const deleteCourse = async (id: string) => {
     try {
-      await deleteCourseApi(id)
-      setCourses((prev) => prev.filter((course) => course.id !== id))
+      await courseService.delete(id)
       toast({
         title: "Éxito",
         description: "Curso eliminado correctamente",
       })
+      await fetchCourses(initialFilters) // ← Usar los filtros actuales
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error al eliminar curso"
       toast({
@@ -96,19 +112,14 @@ export function useCourses(initialFilters?: CourseFilters) {
   }
 
   const refreshCourses = () => {
-    fetchCourses()
+    fetchCourses(initialFilters) // ← Usar los filtros actuales
   }
-
-  useEffect(() => {
-    fetchCourses()
-  }, [fetchCourses])
 
   return {
     courses,
     loading,
     error,
-    filters,
-    setFilters,
+    // ❌ ELIMINAR: searchWithFilters, // Ya no es necesario
     createCourse,
     updateCourse,
     deleteCourse,

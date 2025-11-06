@@ -8,7 +8,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Academia de Idiomas Héroe Brian Willson | SETEC",
+  title: "Academia de Idiomas Héroe Brian Wilson | SETEC",
   description: "Sistema de registro de cursos - Academia de Idiomas",
   generator: "v0.app",
 }

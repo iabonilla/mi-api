@@ -15,66 +15,54 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CursosController = void 0;
 const common_1 = require("@nestjs/common");
 const cursos_service_1 = require("./cursos.service");
-const create_curso_dto_1 = require("./dto/create-curso.dto");
-const update_curso_dto_1 = require("./dto/update-curso.dto");
+const course_filters_dto_1 = require("./dto/course-filters.dto");
 let CursosController = class CursosController {
     constructor(cursosService) {
         this.cursosService = cursosService;
     }
-    create(createCursoDto) {
-        return this.cursosService.create(createCursoDto);
+    findAll(filters) {
+        return this.cursosService.findAll(filters);
     }
-    findAll() {
-        return this.cursosService.findAll();
+    findAllcursos(filters) {
+        return this.cursosService.findAllcursos(filters);
+    }
+    findAvailable() {
+        return this.cursosService.getCursosDisponibles();
     }
     findOne(id) {
-        return this.cursosService.findOne(+id);
-    }
-    update(id, updateCursoDto) {
-        return this.cursosService.update(+id, updateCursoDto);
-    }
-    remove(id) {
-        return this.cursosService.remove(+id);
+        return this.cursosService.findOne(id);
     }
 };
 exports.CursosController = CursosController;
 __decorate([
-    (0, common_1.Post)(),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_curso_dto_1.CreateCursoDto]),
-    __metadata("design:returntype", void 0)
-], CursosController.prototype, "create", null);
-__decorate([
     (0, common_1.Get)(),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [course_filters_dto_1.CourseFiltersDto]),
+    __metadata("design:returntype", void 0)
+], CursosController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('filtrado'),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [course_filters_dto_1.CourseFiltersDto]),
+    __metadata("design:returntype", void 0)
+], CursosController.prototype, "findAllcursos", null);
+__decorate([
+    (0, common_1.Get)('disponibles'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], CursosController.prototype, "findAll", null);
+], CursosController.prototype, "findAvailable", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], CursosController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_curso_dto_1.UpdateCursoDto]),
-    __metadata("design:returntype", void 0)
-], CursosController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], CursosController.prototype, "remove", null);
 exports.CursosController = CursosController = __decorate([
-    (0, common_1.Controller)('cursos'),
+    (0, common_1.Controller)("cursos"),
     __metadata("design:paramtypes", [cursos_service_1.CursosService])
 ], CursosController);
 //# sourceMappingURL=cursos.controller.js.map

@@ -1,9 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from "typeorm";
-import { Center } from "./entities/center.entity";
-import { CreateCenterDto } from "./dto/create-center.dto";
-import { UpdateCenterDto } from "./dto/update-center.dto";
+import { Repository } from 'typeorm';
+import { Center } from './entities/center.entity';
+import { CreateCenterDto } from './dto/create-center.dto';
+import { UpdateCenterDto } from './dto/update-center.dto';
+import { JerarquiaFiltersDto } from './dto/jerarquia-filters.dto'; // ← Nuevo
+
 
 @Injectable()
 export class CentersService {
@@ -37,6 +39,30 @@ export class CentersService {
     }
   }
 
+
+async findJerarquia(filters: JerarquiaFiltersDto): Promise<any[]> {
+  try {
+    const departamentoId = filters.departamento_id || null;
+    
+    console.log('🔍 Ejecutando SP con departamento_id:', departamentoId);
+    
+    const result = await this.centersRepository.query(
+      'EXEC academia.sp_obtener_jerarquia_centros @departamento_id = @0',
+      [departamentoId]
+    );
+    
+    console.log('✅ SP ejecutado correctamente. Resultados:', result.length);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Error ejecutando SP de jerarquía:', error);
+    return [];
+  }
+}
+
+
+
+
   async update(id: number, updateCenterDto: UpdateCenterDto): Promise<Center | null> { // ← number
     try {
       const center = await this.findOne(id);
@@ -59,4 +85,7 @@ export class CentersService {
       // silencioso
     }
   }
+
+
+  
 }

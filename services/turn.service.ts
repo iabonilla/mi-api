@@ -1,7 +1,7 @@
 import { apiClient } from "@/lib/api-client"
 import type { Turn } from "@/types/course"
 
-const endpoint = "/turns"
+const endpoint = "/turns" // Tu endpoint real
 
 export const turnService = {
   async getAll(): Promise<Turn[]> {
@@ -12,11 +12,11 @@ export const turnService = {
     return apiClient.get<Turn>(`${endpoint}/${id}`)
   },
 
-  async create(data: Omit<Turn, "id" | "createdAt" | "updatedAt">): Promise<Turn> {
+  async create(data: Omit<Turn, "id">): Promise<Turn> {
     return apiClient.post<Turn>(endpoint, data)
   },
 
-  async update(id: string, data: Partial<Omit<Turn, "id" | "createdAt" | "updatedAt">>): Promise<Turn> {
+  async update(id: string, data: Partial<Turn>): Promise<Turn> {
     return apiClient.patch<Turn>(`${endpoint}/${id}`, data)
   },
 

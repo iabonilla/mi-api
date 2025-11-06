@@ -4,12 +4,18 @@ import { AppModule } from "./app.module"
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
+  
 
-  // Habilitar CORS para el frontend
+  // HABILITAR CORS - Agrega esto
   app.enableCors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: [
+      'http://localhost:3000',
+      'http://192.168.56.1:3000',
+      'http://127.0.0.1:3000'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     credentials: true,
-  })
+  });
 
   // Prefijo global para todas las rutas
   app.setGlobalPrefix("api")

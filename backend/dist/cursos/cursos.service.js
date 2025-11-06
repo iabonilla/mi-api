@@ -21,58 +21,116 @@ let CursosService = class CursosService {
     constructor(cursoRepository) {
         this.cursoRepository = cursoRepository;
     }
-    async create(createCursoDto) {
-        const curso = this.cursoRepository.create({
-            ...createCursoDto,
-            creado_en: new Date(),
-            actualizado_en: new Date()
-        });
-        return await this.cursoRepository.save(curso);
-    }
-    async findAll() {
-        return await this.cursoRepository.find({
-            relations: [
-                'tipoOferta',
-                'tipoCurso',
-                'carrera',
-                'departamento',
-                'centro',
-                'turno'
-            ]
-        });
+    async findAll(filters) {
+        try {
+            const query = this.cursoRepository
+                .createQueryBuilder('curso')
+                .leftJoinAndSelect('curso.tipoOferta', 'tipoOferta')
+                .leftJoinAndSelect('curso.idioma', 'idioma')
+                .leftJoinAndSelect('curso.centro', 'centro')
+                .leftJoinAndSelect('curso.turno', 'turno')
+                .where('curso.estado = 1');
+            if (filters?.tipo_oferta_id) {
+                query.andWhere('curso.tipoOfertaId = :tipoOfertaId', {
+                    tipoOfertaId: filters.tipo_oferta_id
+                });
+            }
+            if (filters?.idioma_id) {
+                query.andWhere('curso.idiomaId = :idiomaId', {
+                    idiomaId: filters.idioma_id
+                });
+            }
+            if (filters?.centro_id) {
+                query.andWhere('curso.centroId = :centroId', {
+                    centroId: filters.centro_id
+                });
+            }
+            if (filters?.turno_id) {
+                query.andWhere('curso.turnoId = :turnoId', {
+                    turnoId: filters.turno_id
+                });
+            }
+            query.andWhere('curso.fechaInicio >= CAST(GETDATE() AS DATE)');
+            return await query.orderBy('curso.fechaInicio', 'ASC').getMany();
+        }
+        catch (error) {
+            console.error('Error fetching courses:', error);
+            return [];
+        }
     }
     async findOne(id) {
-        const curso = await this.cursoRepository.findOne({
-            where: { id },
-            relations: [
-                'tipoOferta',
-                'tipoCurso',
-                'carrera',
-                'departamento',
-                'centro',
-                'turno'
-            ]
-        });
-        if (!curso) {
-            throw new common_1.NotFoundException(`Curso con ID ${id} no encontrado`);
+        try {
+            return await this.cursoRepository.findOne({
+                where: { id, estado: 1 },
+                relations: ['tipoOferta', 'idioma', 'centro', 'turno']
+            });
         }
-        return curso;
-    }
-    async update(id, updateCursoDto) {
-        const curso = await this.findOne(id);
-        if (!curso) {
-            throw new common_1.NotFoundException(`Curso con ID ${id} no encontrado`);
+        catch (error) {
+            console.error('Error fetching course:', error);
+            return null;
         }
-        await this.cursoRepository.update(id, {
-            ...updateCursoDto,
-            actualizado_en: new Date()
-        });
-        return await this.findOne(id);
     }
-    async remove(id) {
-        const result = await this.cursoRepository.delete(id);
-        if (result.affected === 0) {
-            throw new common_1.NotFoundException(`Curso con ID ${id} no encontrado`);
+    async getCursosDisponibles() {
+        try {
+            return await this.cursoRepository
+                .createQueryBuilder('curso')
+                .leftJoinAndSelect('curso.tipoOferta', 'tipoOferta')
+                .leftJoinAndSelect('curso.idioma', 'idioma')
+                .leftJoinAndSelect('curso.centro', 'centro')
+                .leftJoinAndSelect('curso.turno', 'turno')
+                .where('curso.estado = 1')
+                .andWhere('curso.inscritos < curso.capacidad')
+                .andWhere('curso.fechaInicio >= CAST(GETDATE() AS DATE)')
+                .orderBy('curso.fechaInicio', 'ASC')
+                .getMany();
+        }
+        catch (error) {
+            console.error('Error fetching available courses:', error);
+            return [];
+        }
+    }
+    async findAllcursos(filters) {
+        const { tipo_oferta_id, idioma_id, centro_id, turno_id, estado = true } = filters || {};
+        const result = await this.cursoRepository.query(`EXEC [academia].[SP_FiltrarCursos] 
+        @tipo_oferta_id = @0, 
+        @idioma_id = @1, 
+        @centro_id = @2, 
+        @turno_id = @3, 
+        @estado = @4`, [tipo_oferta_id, idioma_id, centro_id, turno_id, estado]);
+        return result;
+    }
+    async debugAll() {
+        try {
+            const cursos = await this.cursoRepository.find({
+                where: { estado: 1 },
+                relations: ['tipoOferta', 'idioma', 'centro', 'turno']
+            });
+            console.log('🔍 DEBUG - Total cursos en BD:', cursos.length);
+            if (cursos.length > 0) {
+                cursos.forEach((curso, index) => {
+                    console.log(`Curso ${index + 1}:`, {
+                        id: curso.id,
+                        nombre: curso.nombre,
+                        codigo: curso.codigo,
+                        fechaInicio: curso.fechaInicio,
+                        tipoOfertaId: curso.tipoOfertaId,
+                        tipoOferta: curso.tipoOferta,
+                        idiomaId: curso.idiomaId,
+                        idioma: curso.idioma
+                    });
+                });
+            }
+            return {
+                message: `Found ${cursos.length} courses`,
+                data: cursos
+            };
+        }
+        catch (error) {
+            console.error('❌ DEBUG Error:', error);
+            return {
+                error: error.message,
+                stack: error.stack
+            };
         }
     }
 };

@@ -1,0 +1,548 @@
+// components/edit-person-form-standalone.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useToast } from "@/hooks/use-toast"
+import type { PersonFormValues } from "@/types/course"
+import { personService } from "@/services/person.service"
+
+// Mismo schema pero con validaciones más flexibles para edición
+const personFormSchema = z.object({
+  codigo_persona: z.string().min(1, "El código de persona es requerido"),
+  nombres: z.string().min(1, "El nombre es requerido"),
+  apellidos: z.string().min(1, "El apellido es requerido"),
+  fecha_nacimiento: z.string().min(1, "La fecha de nacimiento es requerida"),
+  numero_cedula: z.string().min(1, "La cédula es requerida"),
+  nacionalidad: z.string().min(1, "La nacionalidad es requerida"),
+  genero: z.string().min(1, "El género es requerido"),
+  email: z.string().email("Email inválido").min(1, "El email es requerido"),
+  telefono_movil: z.string().min(1, "El teléfono móvil es requerido"),
+  telefono_alterno: z.string().optional(),
+  direccion_completa: z.string().optional(),
+  municipio_id: z.number().optional(),
+  departamento_id: z.number().optional(),
+  nivel_academico: z.string().optional(),
+  idioma_interes_id: z.number().optional(),
+  preferencia_horario: z.string().optional(),
+  contacto_emergencia_nombre: z.string().optional(),
+  contacto_emergencia_relacion: z.string().optional(),
+  contacto_emergencia_telefono: z.string().optional(),
+})
+
+interface EditPersonFormStandaloneProps {
+  personData: PersonFormValues
+  onSaveAndContinue: (personData: PersonFormValues) => void
+  onContinueOnly: (personData: PersonFormValues) => void
+  onCancel?: () => void
+}
+
+export function EditPersonFormStandalone({ 
+  personData, 
+  onSaveAndContinue, 
+  onContinueOnly, 
+  onCancel 
+}: EditPersonFormStandaloneProps) {
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+
+  const form = useForm<PersonFormValues>({
+    resolver: zodResolver(personFormSchema),
+    defaultValues: personData
+  })
+
+  // Actualizar formulario cuando cambien los datos
+  useEffect(() => {
+    if (personData) {
+      form.reset(personData)
+    }
+  }, [personData, form])
+
+  const handleSaveAndContinue = async (data: PersonFormValues) => {
+    setLoading(true)
+    try {
+      console.log("💾 Guardando y continuando:", data)
+      
+      // Hacer upsert para actualizar los datos
+      const result = await personService.upsert(data)
+      
+      console.log("✅ Datos guardados:", result)
+      
+      toast({
+        title: "¡Datos actualizados!",
+        description: "La información se guardó correctamente",
+      })
+      
+      // Notificar al padre
+      onSaveAndContinue(data)
+      
+    } catch (error: any) {
+      console.error("❌ Error guardando:", error)
+      toast({
+        title: "Error",
+        description: "No se pudieron guardar los cambios",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleContinueOnly = () => {
+    console.log("🚀 Continuando sin guardar:", form.getValues())
+    // Simplemente pasar los datos actuales (pueden tener cambios no guardados)
+    onContinueOnly(form.getValues())
+  }
+
+  return (
+    <div className="w-full max-w-full">
+      <Form {...form}>
+        <form className="space-y-6">
+          {/* PRIMERA FILA - Campos de solo lectura */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <FormField
+              control={form.control}
+              name="codigo_persona"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Código Persona *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      readOnly 
+                      className="bg-gray-100"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Código único (no editable)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="numero_cedula"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cédula *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      readOnly 
+                      className="bg-gray-100"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Número de cédula (no editable)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email *</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="email"
+                      {...field} 
+                      readOnly 
+                      className="bg-gray-100"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Correo electrónico (no editable)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nombres"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombres *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Sus nombres" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* SEGUNDA FILA - Campos editables */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <FormField
+              control={form.control}
+              name="apellidos"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Apellidos *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Sus apellidos" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="fecha_nacimiento"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Fecha Nacimiento *</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nacionalidad"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nacionalidad *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nacionalidad" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="genero"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Género *</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione género" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Masculino">Masculino</SelectItem>
+                      <SelectItem value="Femenino">Femenino</SelectItem>
+                      <SelectItem value="Otro">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+
+
+          {/* TERCERA FILA - 4 columnas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email *</FormLabel>
+                  <FormControl>
+                    <Input type="email" placeholder="email@ejemplo.com" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+         
+
+            <FormField
+              control={form.control}
+              name="telefono_movil"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Teléfono Móvil *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Número de teléfono" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="telefono_alterno"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Teléfono Alterno</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Teléfono alterno" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="nivel_academico"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nivel Académico</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione nivel" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Primaria">Primaria</SelectItem>
+                      <SelectItem value="Secundaria">Secundaria</SelectItem>
+                      <SelectItem value="Universidad">Universidad</SelectItem>
+                      <SelectItem value="Técnico">Técnico</SelectItem>
+                      <SelectItem value="Maestría">Maestría</SelectItem>
+                      <SelectItem value="Doctorado">Doctorado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="preferencia_horario"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Preferencia Horario</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione horario" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Matutino">Matutino</SelectItem>
+                      <SelectItem value="Vespertino">Vespertino</SelectItem>
+                      <SelectItem value="Nocturno">Nocturno</SelectItem>
+                      <SelectItem value="Sabatino">Sabatino</SelectItem>
+                      <SelectItem value="Flexible">Flexible</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* CUARTA FILA - 4 columnas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <FormField
+              control={form.control}
+              name="idioma_interes_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Idioma de Interés</FormLabel>
+                  <Select 
+                    onValueChange={(value) => field.onChange(parseInt(value))} 
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione idioma" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">Inglés</SelectItem>
+                      <SelectItem value="2">Francés</SelectItem>
+                      <SelectItem value="3">Portugués</SelectItem>
+                      <SelectItem value="4">Alemán</SelectItem>
+                      <SelectItem value="5">Italiano</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="departamento_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Departamento</FormLabel>
+                  <Select 
+                    onValueChange={(value) => field.onChange(parseInt(value))} 
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione departamento" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">Managua</SelectItem>
+                      <SelectItem value="2">León</SelectItem>
+                      <SelectItem value="3">Chinandega</SelectItem>
+                      <SelectItem value="4">Masaya</SelectItem>
+                      <SelectItem value="5">Granada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="municipio_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Municipio</FormLabel>
+                  <Select 
+                    onValueChange={(value) => field.onChange(parseInt(value))} 
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione municipio" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="1">Managua</SelectItem>
+                      <SelectItem value="2">Tipitapa</SelectItem>
+                      <SelectItem value="3">Ciudad Sandino</SelectItem>
+                      <SelectItem value="4">León</SelectItem>
+                      <SelectItem value="5">Chinandega</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* QUINTA FILA - 3 columnas para contactos de emergencia */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <FormField
+              control={form.control}
+              name="contacto_emergencia_nombre"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Contacto Emergencia</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nombre completo" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="contacto_emergencia_relacion"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Relación</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Parentesco" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="contacto_emergencia_telefono"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Teléfono Emergencia</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Número de contacto" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div><hr /></div>
+
+          {/* Dirección - Ocupa todo el ancho */}
+          <FormField
+            control={form.control}
+            name="direccion_completa"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Dirección Completa</FormLabel>
+                <FormControl>
+                  <Textarea 
+                    placeholder="Dirección completa de residencia" 
+                    className="min-h-[100px]"
+                    {...field} 
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+
+
+          {/* Botones de acción */}
+          <div className="flex gap-4 pt-6">
+            <Button
+              type="button"
+              onClick={form.handleSubmit(handleSaveAndContinue)}
+              disabled={loading}
+              className="flex-1 bg-green-600 hover:bg-green-700"
+            >
+              {loading ? "Guardando..." : "💾 Guardar y Continuar"}
+            </Button>
+
+            <Button
+              type="button"
+              onClick={handleContinueOnly}
+              disabled={loading}
+              variant="outline"
+              className="flex-1"
+            >
+              🚀 Solo Continuar
+            </Button>
+
+            {onCancel && (
+              <Button
+                type="button"
+                onClick={onCancel}
+                variant="outline"
+                className="flex-1"
+              >
+                ↩️ Volver
+              </Button>
+            )}
+          </div>
+        </form>
+      </Form>
+    </div>
+  )
+}

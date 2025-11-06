@@ -1,12 +1,10 @@
-import { CursosService } from './cursos.service';
-import { CreateCursoDto } from './dto/create-curso.dto';
-import { UpdateCursoDto } from './dto/update-curso.dto';
+import { CursosService } from "./cursos.service";
+import { CourseFiltersDto } from "./dto/course-filters.dto";
 export declare class CursosController {
     private readonly cursosService;
     constructor(cursosService: CursosService);
-    create(createCursoDto: CreateCursoDto): Promise<import("./entities/curso.entity").Curso>;
-    findAll(): Promise<import("./entities/curso.entity").Curso[]>;
-    findOne(id: string): Promise<import("./entities/curso.entity").Curso>;
-    update(id: string, updateCursoDto: UpdateCursoDto): Promise<import("./entities/curso.entity").Curso>;
-    remove(id: string): Promise<void>;
+    findAll(filters: CourseFiltersDto): Promise<import("./entities/curso.entity").Curso[]>;
+    findAllcursos(filters: CourseFiltersDto): Promise<any[]>;
+    findAvailable(): Promise<import("./entities/curso.entity").Curso[]>;
+    findOne(id: number): Promise<import("./entities/curso.entity").Curso>;
 }

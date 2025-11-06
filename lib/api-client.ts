@@ -1,3 +1,4 @@
+// lib/api-client.ts
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
 
 interface RequestOptions {
@@ -9,28 +10,10 @@ interface RequestOptions {
 
 class ApiClient {
   private baseURL: string
-  private apiAvailable: boolean | null = null
 
   constructor(baseURL?: string) {
-    this.baseURL = baseURL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api"
-  }
-
-  async checkApiAvailability(): Promise<boolean> {
-    if (this.apiAvailable !== null) {
-      return this.apiAvailable
-    }
-
-    try {
-      const response = await fetch(`${this.baseURL}/health`, {
-        method: "GET",
-        cache: "no-store",
-      })
-      this.apiAvailable = response.ok
-      return this.apiAvailable
-    } catch {
-      this.apiAvailable = false
-      return false
-    }
+    // SOLUCIÓN: Usar URL completa en lugar de ruta relativa
+    this.baseURL = baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005/api'
   }
 
   private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
@@ -52,27 +35,19 @@ class ApiClient {
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, config)
 
-      const contentType = response.headers.get("content-type")
-
       if (!response.ok) {
-        if (contentType && contentType.includes("application/json")) {
-          const error = await response.json().catch(() => ({ message: "Error desconocido" }))
-          throw new Error(error.message || `HTTP Error: ${response.status}`)
-        } else {
-          throw new Error("API_NOT_AVAILABLE")
-        }
+        const errorText = await response.text()
+        throw new Error(`HTTP ${response.status}: ${errorText}`)
       }
 
+      // Para respuestas sin contenido (DELETE exitoso)
       if (response.status === 204) {
         return null as T
       }
 
-      if (contentType && contentType.includes("application/json")) {
-        return await response.json()
-      } else {
-        throw new Error("API_NOT_AVAILABLE")
-      }
+      return await response.json()
     } catch (error) {
+      console.error('API request failed:', error)
       throw error
     }
   }

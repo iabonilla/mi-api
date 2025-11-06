@@ -1,0 +1,34 @@
+import { Controller, Get, Post, Patch, Param, Delete, Body } from "@nestjs/common";
+import { IdiomasService } from "./idiomas.service";
+import { CreateIdiomaDto } from "./dto/create-idioma.dto";
+import { UpdateIdiomaDto } from "./dto/update-idioma.dto";
+
+@Controller("idiomas")
+export class IdiomasController {
+  constructor(private readonly idiomasService: IdiomasService) {}
+
+  @Post()
+  create(@Body() createIdiomaDto: CreateIdiomaDto) {
+    return this.idiomasService.create(createIdiomaDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.idiomasService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.idiomasService.findOne(id);
+  }
+
+  @Patch(":id")
+  update(@Param('id') id: number, @Body() updateIdiomaDto: UpdateIdiomaDto) {
+    return this.idiomasService.update(id, updateIdiomaDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: number) {
+    return this.idiomasService.remove(id);
+  }
+}

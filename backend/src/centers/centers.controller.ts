@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Patch, Param, Delete, Body } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Param, Delete, Body, Query } from "@nestjs/common"; // ← Agregar Query
 import { CentersService } from "./centers.service";
 import { CreateCenterDto } from "./dto/create-center.dto";
 import { UpdateCenterDto } from "./dto/update-center.dto";
+import { JerarquiaFiltersDto } from "./dto/jerarquia-filters.dto"; // ← Nuevo DTO
 
 @Controller("centros")
 export class CentersController {
@@ -15,6 +16,12 @@ export class CentersController {
   @Get()
   findAll() {
     return this.centersService.findAll();
+  }
+
+  // ✅ NUEVO ENDPOINT - Jerarquía completa
+  @Get("jerarquia")
+  findJerarquia(@Query() filters: JerarquiaFiltersDto) {
+    return this.centersService.findJerarquia(filters);
   }
 
   @Get(':id')

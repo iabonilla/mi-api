@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const centers_service_1 = require("./centers.service");
 const create_center_dto_1 = require("./dto/create-center.dto");
 const update_center_dto_1 = require("./dto/update-center.dto");
+const jerarquia_filters_dto_1 = require("./dto/jerarquia-filters.dto");
 let CentersController = class CentersController {
     constructor(centersService) {
         this.centersService = centersService;
@@ -26,6 +27,9 @@ let CentersController = class CentersController {
     }
     findAll() {
         return this.centersService.findAll();
+    }
+    findJerarquia(filters) {
+        return this.centersService.findJerarquia(filters);
     }
     findOne(id) {
         return this.centersService.findOne(id);
@@ -51,6 +55,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], CentersController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)("jerarquia"),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [jerarquia_filters_dto_1.JerarquiaFiltersDto]),
+    __metadata("design:returntype", void 0)
+], CentersController.prototype, "findJerarquia", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),

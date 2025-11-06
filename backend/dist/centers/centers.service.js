@@ -46,6 +46,19 @@ let CentersService = class CentersService {
             return null;
         }
     }
+    async findJerarquia(filters) {
+        try {
+            const departamentoId = filters.departamento_id || null;
+            console.log('🔍 Ejecutando SP con departamento_id:', departamentoId);
+            const result = await this.centersRepository.query('EXEC academia.sp_obtener_jerarquia_centros @departamento_id = @0', [departamentoId]);
+            console.log('✅ SP ejecutado correctamente. Resultados:', result.length);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ Error ejecutando SP de jerarquía:', error);
+            return [];
+        }
+    }
     async update(id, updateCenterDto) {
         try {
             const center = await this.findOne(id);

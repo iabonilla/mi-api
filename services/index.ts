@@ -1,4 +1,9 @@
-export { courseService, CourseService } from "./course.service"
-export { departmentService, DepartmentService } from "./department.service"
-export { centerService, CenterService } from "./center.service"
-export { turnService, TurnService } from "./turn.service"
+// services/index.ts - ACTUALIZADO
+export { courseService } from "./course.service"
+export { departmentService } from "./department.service"
+export { centerService } from "./center.service"
+export { turnService } from "./turn.service"
+export { tipoCursoService } from "./tipo-curso.service"
+export { carreraService } from "./carrera.service"
+export { tipoOfertaService } from "./tipo-oferta.service"
+export { idiomaService } from "./idioma.service" // ← NUEVO
