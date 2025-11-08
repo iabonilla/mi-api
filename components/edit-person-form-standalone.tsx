@@ -1,4 +1,4 @@
-// components/edit-person-form-standalone.tsx
+// components/edit-person-form-standalone.tsx - VERSIÓN CON DATOS DINÁMICOS
 "use client"
 
 import { useState, useEffect } from "react"
@@ -44,6 +44,23 @@ interface EditPersonFormStandaloneProps {
   onCancel?: () => void
 }
 
+interface Departamento {
+  id: number
+  nombre: string
+  codigo: string
+  estado: boolean
+}
+
+interface Municipio {
+  Id: number
+  Id_departamento: number
+  Codigo: string
+  Nombre: string
+  Estado: number
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export function EditPersonFormStandalone({ 
   personData, 
   onSaveAndContinue, 
@@ -51,6 +68,9 @@ export function EditPersonFormStandalone({
   onCancel 
 }: EditPersonFormStandaloneProps) {
   const [loading, setLoading] = useState(false)
+  const [departamentos, setDepartamentos] = useState<Departamento[]>([])
+  const [municipios, setMunicipios] = useState<Municipio[]>([])
+  const [loadingData, setLoadingData] = useState(true)
   const { toast } = useToast()
 
   const form = useForm<PersonFormValues>({
@@ -58,12 +78,64 @@ export function EditPersonFormStandalone({
     defaultValues: personData
   })
 
+  // Cargar departamentos y municipios desde endpoints
+  useEffect(() => {
+    const loadReferenceData = async () => {
+      try {
+        setLoadingData(true)
+        console.log("📡 Cargando datos de referencia para edición...")
+
+        const [departamentosResponse, municipiosResponse] = await Promise.all([
+          fetch(`${API_URL}/departamentos_persona`),
+          fetch(`${API_URL}/municipios_persona`)
+        ])
+
+        if (departamentosResponse.ok) {
+          const departamentosData = await departamentosResponse.json()
+          setDepartamentos(departamentosData)
+          console.log("✅ Departamentos cargados:", departamentosData.length)
+        } else {
+          console.error("❌ Falló carga de departamentos")
+          setDepartamentos([])
+        }
+
+        if (municipiosResponse.ok) {
+          const municipiosData = await municipiosResponse.json()
+          setMunicipios(municipiosData)
+          console.log("✅ Municipios cargados:", municipiosData.length)
+        } else {
+          console.error("❌ Falló carga de municipios")
+          setMunicipios([])
+        }
+
+      } catch (error) {
+        console.error("❌ Error cargando datos de referencia:", error)
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los datos de referencia",
+          variant: "destructive"
+        })
+      } finally {
+        setLoadingData(false)
+      }
+    }
+
+    loadReferenceData()
+  }, [toast])
+
   // Actualizar formulario cuando cambien los datos
   useEffect(() => {
     if (personData) {
       form.reset(personData)
     }
   }, [personData, form])
+
+  // Filtrar municipios por departamento seleccionado
+  const municipiosFiltrados = municipios.filter(m => {
+    const departamentoId = form.watch('departamento_id')
+    if (!departamentoId) return false
+    return m.Id_departamento === departamentoId
+  })
 
   const handleSaveAndContinue = async (data: PersonFormValues) => {
     setLoading(true)
@@ -75,13 +147,19 @@ export function EditPersonFormStandalone({
       
       console.log("✅ Datos guardados:", result)
       
+      // ✅ INCLUIR EL ID en los datos que se pasan al padre
+      const personDataWithId = {
+        ...data,
+        id: result.id // ← AGREGAR EL ID DEL REGISTRO
+      }
+      
       toast({
         title: "¡Datos actualizados!",
         description: "La información se guardó correctamente",
       })
       
-      // Notificar al padre
-      onSaveAndContinue(data)
+      // Notificar al padre con el ID incluido
+      onSaveAndContinue(personDataWithId)
       
     } catch (error: any) {
       console.error("❌ Error guardando:", error)
@@ -98,7 +176,23 @@ export function EditPersonFormStandalone({
   const handleContinueOnly = () => {
     console.log("🚀 Continuando sin guardar:", form.getValues())
     // Simplemente pasar los datos actuales (pueden tener cambios no guardados)
-    onContinueOnly(form.getValues())
+    // ✅ INCLUIR EL ID existente
+    const currentData = {
+      ...form.getValues(),
+      id: personData.id // ← MANTENER EL ID EXISTENTE
+    }
+    onContinueOnly(currentData)
+  }
+
+  if (loadingData) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Cargando datos de referencia...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -254,26 +348,8 @@ export function EditPersonFormStandalone({
             />
           </div>
 
-
-
           {/* TERCERA FILA - 4 columnas */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email *</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="email@ejemplo.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-         
-
             <FormField
               control={form.control}
               name="telefono_movil"
@@ -384,6 +460,7 @@ export function EditPersonFormStandalone({
               )}
             />
 
+            {/* DEPARTAMENTO - CARGADO DESDE ENDPOINT */}
             <FormField
               control={form.control}
               name="departamento_id"
@@ -400,11 +477,11 @@ export function EditPersonFormStandalone({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">Managua</SelectItem>
-                      <SelectItem value="2">León</SelectItem>
-                      <SelectItem value="3">Chinandega</SelectItem>
-                      <SelectItem value="4">Masaya</SelectItem>
-                      <SelectItem value="5">Granada</SelectItem>
+                      {departamentos.map((departamento) => (
+                        <SelectItem key={departamento.id} value={departamento.id.toString()}>
+                          {departamento.nombre}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -412,6 +489,7 @@ export function EditPersonFormStandalone({
               )}
             />
 
+            {/* MUNICIPIO - CARGADO DESDE ENDPOINT Y FILTRADO POR DEPARTAMENTO */}
             <FormField
               control={form.control}
               name="municipio_id"
@@ -421,18 +499,25 @@ export function EditPersonFormStandalone({
                   <Select 
                     onValueChange={(value) => field.onChange(parseInt(value))} 
                     defaultValue={field.value?.toString()}
+                    disabled={!form.watch('departamento_id')}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccione municipio" />
+                        <SelectValue placeholder={
+                          !form.watch('departamento_id') 
+                            ? "Seleccione departamento primero" 
+                            : municipiosFiltrados.length === 0
+                            ? "No hay municipios disponibles"
+                            : "Seleccione municipio"
+                        } />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">Managua</SelectItem>
-                      <SelectItem value="2">Tipitapa</SelectItem>
-                      <SelectItem value="3">Ciudad Sandino</SelectItem>
-                      <SelectItem value="4">León</SelectItem>
-                      <SelectItem value="5">Chinandega</SelectItem>
+                      {municipiosFiltrados.map((municipio) => (
+                        <SelectItem key={municipio.Id} value={municipio.Id.toString()}>
+                          {municipio.Nombre}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -506,8 +591,6 @@ export function EditPersonFormStandalone({
               </FormItem>
             )}
           />
-
-
 
           {/* Botones de acción */}
           <div className="flex gap-4 pt-6">

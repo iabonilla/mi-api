@@ -18,16 +18,10 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container-wide py-6">
-        <ApiConfigWarning />
-        {/* ✅ RequirementsSection NOTIFICA cambios */}
-        <RequirementsSection 
-          onPersonDataUpdate={setGlobalPersonData}
-        />
-        {/* ✅ CourseFilters RECIBE datos */}
-        <CourseFilters 
-          currentPersonData={globalPersonData}
-        />
+      <main className="container-wide py-6"> 
+        <ApiConfigWarning />        
+        <RequirementsSection onPersonDataUpdate={setGlobalPersonData}/>                        
+        <CourseFilters currentPersonData={globalPersonData}/>
       </main>
       <Toaster />
     </div>

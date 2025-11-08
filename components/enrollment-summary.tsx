@@ -161,24 +161,15 @@ export function EnrollmentSummary({
                     <span className="font-semibold text-blue-800">Email:</span>
                     <span className="font-medium">{personData.email}</span>
                   </div>
-                  <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
                     <span className="font-semibold text-gray-700">
                       Teléfono:
                     </span>
                     <span className="font-medium">{personData.telefono}</span>
                   </div>
-                  {personData.departamento && (
-                    <div className="flex justify-between items-center p-2 bg-blue-50 rounded">
-                      <span className="font-semibold text-blue-800">
-                        Ubicación:
-                      </span>
-                      <span className="font-medium text-right text-xs">
-                        {personData.departamento}, {personData.municipio}
-                      </span>
-                    </div>
-                  )}
+
                   {personData.direccion && (
-                    <div className="col-span-2 p-2 bg-gray-50 rounded">
+                    <div className="col-span-2 p-2 bg-blue-50 rounded">
                       <div className="font-semibold text-gray-700 mb-1 text-xs">
                         Dirección completa:
                       </div>

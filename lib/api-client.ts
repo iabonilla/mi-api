@@ -12,7 +12,7 @@ class ApiClient {
   private baseURL: string
 
   constructor(baseURL?: string) {
-    // SOLUCIÓN: Usar URL completa en lugar de ruta relativa
+    
     this.baseURL = baseURL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005/api'
   }
 

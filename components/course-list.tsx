@@ -28,19 +28,7 @@ export function CourseList({ filters, currentPersonData }: CourseListProps) {
   const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [modalOpen, setModalOpen] = useState(false);
   
-  // ✅ ELIMINAR: Ya no necesitamos searchWithFilters ni el efecto manual
-  // const prevFiltersRef = useRef<CourseFilters | undefined>(undefined);
 
-  // ✅ ELIMINAR: Este efecto ya no es necesario si el hook maneja los filtros automáticamente
-  // useEffect(() => {
-  //   if (filters && JSON.stringify(filters) !== JSON.stringify(prevFiltersRef.current)) {
-  //     console.log("🔄 Aplicando nuevos filtros:", filters);
-  //     prevFiltersRef.current = filters;
-  //     searchWithFilters(filters);
-  //   }
-  // }, [filters, searchWithFilters]);
-
-  // NUEVA FUNCIÓN: Determinar si el curso está disponible basado en cupos
   const isCourseAvailable = (course: any) => {
     return course.estado && course.inscritos < course.capacidad;
   };
@@ -65,6 +53,7 @@ export function CourseList({ filters, currentPersonData }: CourseListProps) {
   }, [courses, filters]);
 
   if (loading) {
+    
     return (
       <div className="flex items-center justify-center py-12">
         <Spinner className="h-8 w-8" />

@@ -163,16 +163,14 @@ export function CourseFilters({
 
   return (
     <div className="space-y-6">
-      {/* SOLO UNA CARD PRINCIPAL - NO ESTÁ DUPLICADA EN EL JSX */}
       <Card className="border-2 border-primary/20 bg-white card-shadow-blue transition-all duration-300 hover:card-shadow-blue-hover">
-        <CardContent className="pt-6">
+        <CardContent className="pt-1">
           <Tabs
             defaultValue="presencial"
             className="w-full"
             onValueChange={handleTabChange}
           >
-            {/* HEADER - UNA SOLA VEZ */}
-            <div className="flex items-center justify-between mb-6 p-6 from-slate-50 to-blue-100/30 rounded-2xl border border-blue-100/50 shadow-sm">
+            <div className="flex items-center justify-between mb-4 p-5 from-slate-50 to-blue-100/30 rounded-2xl border border-blue-100/50 shadow-sm">
               <div>
                 <h2 className="text-3xl font-bold text-primary mb-2">
                   Buscar cursos disponibles
@@ -246,34 +244,6 @@ export function CourseFilters({
                   </CardContent>
                 </Card>
 
-                {/* Filtro de Centros */}
-                <Card className="border border-primary/15 bg-white card-shadow-blue transition-shadow duration-200 hover:card-shadow-blue-hover">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Building2 className="h-5 w-5 text-primary" />
-                      </div>
-                      <CardTitle className="text-card-foreground text-base font-semibold">
-                        Centros
-                        {selectedDepartamento && (
-                          <span className="text-sm text-muted-foreground ml-2">
-                            ({centros.length} disponibles)
-                          </span>
-                        )}
-                      </CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <CenterFilter
-                      municipioId={selectedDepartamento}
-                      centros={centros}
-                      onCenterSelect={handleCenterSelect}
-                      selectedCenter={selectedCentro}
-                      loading={jerarquiaLoading}
-                    />
-                  </CardContent>
-                </Card>
-
                 {/* Filtro de Turnos */}
                 <Card className="border border-primary/15 bg-white card-shadow-blue transition-shadow duration-200 hover:card-shadow-blue-hover">
                   <CardHeader className="pb-3">
@@ -293,6 +263,34 @@ export function CourseFilters({
                     />
                   </CardContent>
                 </Card>
+
+                {/* Filtro de Centros */}
+                <Card className="border border-primary/15 bg-white card-shadow-blue transition-shadow duration-200 hover:card-shadow-blue-hover">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                        <Building2 className="h-5 w-5 text-primary" />
+                      </div>
+                      <CardTitle className="text-card-foreground text-base font-semibold">
+                        Centros
+                        {selectedDepartamento && (
+                          <span className="text-sm text-muted-foreground ml-2">
+                            ({centros.length} disponibles)
+                          </span>
+                        )}
+                      </CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent> 
+                    <CenterFilter
+                      municipioId={selectedDepartamento}
+                      centros={centros}
+                      onCenterSelect={handleCenterSelect}
+                      selectedCenter={selectedCentro}
+                      loading={jerarquiaLoading}
+                      />
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Botones alineados */}
@@ -302,7 +300,7 @@ export function CourseFilters({
                   className="btn-primary px-8 gap-2 font-semibold text-lg py-3 transition-all duration-200 hover:scale-105"
                   onClick={handleSearch}
                   disabled={!hasFilters}
-                >
+                  >
                   <Search className="h-5 w-5" />
                   {hasFilters
                     ? "Buscar Cursos Presenciales"
@@ -311,10 +309,10 @@ export function CourseFilters({
 
                 {hasFilters && (
                   <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={handleClearFilters}
-                    className="px-8 gap-2 font-semibold text-lg py-3 transition-all duration-200"
+                  variant="outline"
+                  size="lg"
+                  onClick={handleClearFilters}
+                  className="px-8 gap-2 font-semibold text-lg py-3 transition-all duration-200"
                   >
                     <RotateCcw className="h-5 w-5" />
                     Limpiar Filtros
@@ -332,9 +330,8 @@ export function CourseFilters({
                     {selectedTurno && " Turno"}
                   </Badge>
                 </div>
-              )}
+              )}              
 
-              {/* ✅ COURSELIST SIEMPRE VISIBLE - PRESENCIAL */}
               <CourseList
                 filters={currentFilters}
                 currentPersonData={currentPersonData}
@@ -390,15 +387,14 @@ export function CourseFilters({
               </div>
 
               {hasFilters && (
-                <div className="text-center mb-4">
+                <div className="text-center mb-1 ">
                   <Badge variant="secondary">
-                    Filtros activos:
+                    Filtros activos virtuales:
                     {selectedIdioma && " Idioma"}
                   </Badge>
                 </div>
               )}
 
-              {/* ✅ COURSELIST SIEMPRE VISIBLE - VIRTUAL */}
               <CourseList
                 filters={currentFilters}
                 currentPersonData={currentPersonData}

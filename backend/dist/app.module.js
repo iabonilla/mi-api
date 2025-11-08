@@ -20,6 +20,9 @@ const carreras_module_1 = require("./carreras/carreras.module");
 const tipo_ofertas_module_1 = require("./tipo-ofertas/tipo-ofertas.module");
 const idiomas_module_1 = require("./idiomas/idiomas.module");
 const personas_module_1 = require("./persona/personas.module");
+const matriculas_cursos_module_1 = require("./matriculas/matriculas-cursos.module");
+const departments_module_2 = require("./departamentos_persona/departments.module");
+const municipio_module_2 = require("./municipio_persona/municipio.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,16 +35,20 @@ exports.AppModule = AppModule = __decorate([
             typeorm_1.TypeOrmModule.forRoot({
                 type: 'mssql',
                 host: process.env.DB_HOST_local,
-                port: parseInt(process.env.DB_PORT_local, 10) || 1433,
+                port: parseInt(process.env.DB_PORT_local) || 1433,
                 username: process.env.DB_USERNAME_local,
                 password: process.env.DB_PASSWORD_local,
                 database: process.env.DB_DATABASE_local,
                 entities: [__dirname + '/**/*.entity{.ts,.js}'],
                 synchronize: false,
+                retryDelay: 3000,
+                retryAttempts: 10,
                 logging: false,
                 options: {
                     encrypt: false,
+                    enableArithAbort: true,
                     trustServerCertificate: true,
+                    connectTimeout: 90000,
                 },
             }),
             cursos_module_1.CursosModule,
@@ -54,6 +61,9 @@ exports.AppModule = AppModule = __decorate([
             tipo_ofertas_module_1.TipoOfertasModule,
             idiomas_module_1.IdiomasModule,
             personas_module_1.PersonasModule,
+            matriculas_cursos_module_1.MatriculasCursosModule,
+            departments_module_2.DepartmentsModule_persona,
+            municipio_module_2.MunicipioModule_persona,
         ],
     })
 ], AppModule);

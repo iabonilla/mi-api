@@ -65,7 +65,7 @@ export function RegistrationModal({ course, open, onOpenChange, existingPersonDa
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-[95vw] h-[80vh] rounded-lg " style={{ width: '80vw', maxWidth: '90vw' }} >
+      <DialogContent className="max-w-[95vw] h-[70vh] rounded-lg " style={{ width: '80vw', maxWidth: '90vw' }} >
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             Inscripción a Curso

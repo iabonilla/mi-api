@@ -1,4 +1,4 @@
-// components/person-form-standalone.tsx - VERSIÓN REPARADA
+// components/person-form-standalone.tsx - VERSIÓN CON DATOS DINÁMICOS
 "use client"
 
 import { useState, useEffect } from "react"
@@ -46,14 +46,34 @@ interface PersonFormStandaloneProps {
   loading?: boolean
 }
 
+interface Departamento {
+  id: number
+  nombre: string
+  codigo: string
+  estado: boolean
+}
+
+interface Municipio {
+  Id: number
+  Id_departamento: number
+  Codigo: string
+  Nombre: string
+  Estado: number
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export function PersonFormStandalone({ onSuccess, defaultValues, loading }: PersonFormStandaloneProps) {
   const [internalLoading, setInternalLoading] = useState(false)
+  const [departamentos, setDepartamentos] = useState<Departamento[]>([])
+  const [municipios, setMunicipios] = useState<Municipio[]>([])
+  const [loadingData, setLoadingData] = useState(true)
   const { toast } = useToast()
 
   const form = useForm<PersonFormValues>({
     resolver: zodResolver(personFormSchema),
     defaultValues: {
-      codigo_persona: "", // ← VACÍO - El usuario ingresa su código
+      codigo_persona: "",
       nombres: "",
       apellidos: "",
       fecha_nacimiento: "",
@@ -76,6 +96,51 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
     },
   })
 
+  // Cargar departamentos y municipios desde endpoints
+  useEffect(() => {
+    const loadReferenceData = async () => {
+      try {
+        setLoadingData(true)
+        console.log("📡 Cargando datos de referencia...")
+
+        const [departamentosResponse, municipiosResponse] = await Promise.all([
+          fetch(`${API_URL}/departamentos_persona`),
+          fetch(`${API_URL}/municipios_persona`)
+        ])
+
+        if (departamentosResponse.ok) {
+          const departamentosData = await departamentosResponse.json()
+          setDepartamentos(departamentosData)
+          console.log("✅ Departamentos cargados:", departamentosData.length)
+        } else {
+          console.error("❌ Falló carga de departamentos")
+          setDepartamentos([])
+        }
+
+        if (municipiosResponse.ok) {
+          const municipiosData = await municipiosResponse.json()
+          setMunicipios(municipiosData)
+          console.log("✅ Municipios cargados:", municipiosData.length)
+        } else {
+          console.error("❌ Falló carga de municipios")
+          setMunicipios([])
+        }
+
+      } catch (error) {
+        console.error("❌ Error cargando datos de referencia:", error)
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los datos de referencia",
+          variant: "destructive"
+        })
+      } finally {
+        setLoadingData(false)
+      }
+    }
+
+    loadReferenceData()
+  }, [toast])
+
   // Actualizar formulario cuando cambien los defaultValues
   useEffect(() => {
     if (defaultValues) {
@@ -83,19 +148,30 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
     }
   }, [defaultValues, form])
 
+  // Filtrar municipios por departamento seleccionado
+  const municipiosFiltrados = municipios.filter(m => {
+    const departamentoId = form.watch('departamento_id')
+    if (!departamentoId) return false
+    return m.Id_departamento === departamentoId
+  })
+
   const onSubmit = async (data: PersonFormValues) => {
     setInternalLoading(true)
     try {
       console.log("📤 Enviando datos al backend:", data)
       
-      // ✅ CORRECCIÓN: Enviar los datos exactamente como vienen del formulario
-      // SIN generación automática de código
+      // ✅ CORRECCIÓN: Usar upsert para crear o actualizar
       const result = await personService.upsert(data)
       
       console.log("✅ Respuesta del backend:", result)
       
-      // Enviar los datos ORIGINALES del formulario al modal
-      onSuccess(data)
+      // ✅ INCLUIR EL ID en los datos que se pasan al padre
+      const personDataWithId = {
+        ...data,
+        id: result.id // ← AGREGAR EL ID DEL REGISTRO
+      }
+      
+      onSuccess(personDataWithId)
       
       toast({
         title: "¡Registro exitoso!",
@@ -124,6 +200,17 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
 
   const isSubmitting = loading || internalLoading
 
+  if (loadingData) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Cargando datos de referencia...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full max-w-full">
       <Form {...form}>
@@ -140,7 +227,6 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
                     <Input 
                       placeholder="Ingrese su código de persona" 
                       {...field} 
-                      // ✅ QUITADO: readOnly - Ahora el usuario puede editarlo
                     />
                   </FormControl>
                   <FormDescription>
@@ -374,6 +460,7 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
               )}
             />
 
+            {/* DEPARTAMENTO - CARGADO DESDE ENDPOINT */}
             <FormField
               control={form.control}
               name="departamento_id"
@@ -390,11 +477,11 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">Managua</SelectItem>
-                      <SelectItem value="2">León</SelectItem>
-                      <SelectItem value="3">Chinandega</SelectItem>
-                      <SelectItem value="4">Masaya</SelectItem>
-                      <SelectItem value="5">Granada</SelectItem>
+                      {departamentos.map((departamento) => (
+                        <SelectItem key={departamento.id} value={departamento.id.toString()}>
+                          {departamento.nombre}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -402,6 +489,7 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
               )}
             />
 
+            {/* MUNICIPIO - CARGADO DESDE ENDPOINT Y FILTRADO POR DEPARTAMENTO */}
             <FormField
               control={form.control}
               name="municipio_id"
@@ -411,18 +499,25 @@ export function PersonFormStandalone({ onSuccess, defaultValues, loading }: Pers
                   <Select 
                     onValueChange={(value) => field.onChange(parseInt(value))} 
                     defaultValue={field.value?.toString()}
+                    disabled={!form.watch('departamento_id')}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccione municipio" />
+                        <SelectValue placeholder={
+                          !form.watch('departamento_id') 
+                            ? "Seleccione departamento primero" 
+                            : municipiosFiltrados.length === 0
+                            ? "No hay municipios disponibles"
+                            : "Seleccione municipio"
+                        } />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="1">Managua</SelectItem>
-                      <SelectItem value="2">Tipitapa</SelectItem>
-                      <SelectItem value="3">Ciudad Sandino</SelectItem>
-                      <SelectItem value="4">León</SelectItem>
-                      <SelectItem value="5">Chinandega</SelectItem>
+                      {municipiosFiltrados.map((municipio) => (
+                        <SelectItem key={municipio.Id} value={municipio.Id.toString()}>
+                          {municipio.Nombre}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />

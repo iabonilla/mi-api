@@ -3,8 +3,8 @@ import Image from "next/image";
 
 export function Header() {
   return (
-    <header className="border-b border-border bg-white shadow-sm">
-      <div className="container-wide py-3"> {/* ✅ Cambiado a container-wide */}
+    <header className="border-b border-border bg-white shadow-sm px-2">
+      <div className="container-wide py-2 "> 
         {/* Primera fila - Logos institucionales */}
         <div className="flex items-center justify-between mb-1">
           {/* Logo GRUN (izquierda) - PEGADO A LA IZQUIERDA */}

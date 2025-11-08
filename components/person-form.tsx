@@ -1,4 +1,4 @@
-// components/person-form.tsx - VERSIÓN ACTUALIZADA
+// components/person-form.tsx - VERSIÓN CON VARIABLES RENOMBRADAS
 "use client"
 
 import { useState, useEffect } from "react"
@@ -12,14 +12,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Calendar, Clock, Search, User, CheckCircle } from "lucide-react" // ← Agregar CheckCircle
+import { MapPin, Calendar, Clock, Search, User, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { personService } from "@/services/person.service"
-import { Badge } from "@/components/ui/badge" // ← Agregar Badge
+import { Badge } from "@/components/ui/badge"
 
-// SCHEMA COMPLETO - TODOS los campos requeridos por SQL Server
+// SCHEMA COMPLETO
 const personFormSchema = z.object({
-  // Campos OBLIGATORIOS en SQL
   nombres: z.string().min(1, "El nombre es requerido"),
   apellidos: z.string().min(1, "El apellido es requerido"),
   fecha_nacimiento: z.string().min(1, "La fecha de nacimiento es requerida"),
@@ -28,8 +27,6 @@ const personFormSchema = z.object({
   nacionalidad: z.string().min(1, "La nacionalidad es requerida"),
   email: z.string().email("Email inválido").min(1, "El email es requerido"),
   telefono_movil: z.string().min(1, "El teléfono móvil es requerido"),
-  
-  // Campos OPCIONALES en SQL
   genero: z.string(),
   telefono_alterno: z.string().optional(),
   direccion_completa: z.string().optional(),
@@ -49,15 +46,39 @@ interface PersonFormProps {
   course?: Curso | null
   onSuccess: (personData: any) => void
   initialData?: any
-  existingPersonData?: any // ← NUEVA PROP PARA DATOS EXISTENTES
+  existingPersonData?: any
 }
+
+// ✅ RENOMBRAMOS LAS INTERFACES PARA EVITAR CONFLICTOS
+interface DepartamentoPersona {
+  id: number
+  nombre: string
+  codigo: string
+  estado: boolean
+}
+
+interface MunicipioPersona {
+  Id: number
+  Id_departamento: number
+  Codigo: string
+  Nombre: string
+  Estado: number
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export function PersonForm({ course, onSuccess, initialData, existingPersonData }: PersonFormProps) {
   const [loading, setLoading] = useState(false)
   const [searching, setSearching] = useState(false)
   const [searchMethod, setSearchMethod] = useState<'cedula' | 'codigo' | 'email'>('cedula')
   const [searchValue, setSearchValue] = useState('')
-  const [hasExistingData, setHasExistingData] = useState(false) // ← NUEVO ESTADO
+  const [hasExistingData, setHasExistingData] = useState(false)
+  
+  // ✅ RENOMBRAMOS LAS VARIABLES PARA EVITAR CONFLICTOS
+  const [departamentosPersona, setDepartamentosPersona] = useState<DepartamentoPersona[]>([])
+  const [municipiosPersona, setMunicipiosPersona] = useState<MunicipioPersona[]>([])
+  const [municipiosFiltradosPersona, setMunicipiosFiltradosPersona] = useState<MunicipioPersona[]>([])
+  const [loadingData, setLoadingData] = useState(true)
   const { toast } = useToast()
 
   const form = useForm<PersonFormValues>({
@@ -84,15 +105,131 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
     },
   })
 
-  // ✅ EFECTO MEJORADO: Cargar datos existentes automáticamente
+  // ✅ CARGAR DATOS CON VARIABLES RENOMBRADAS
   useEffect(() => {
-    // Prioridad: existingPersonData > initialData
+    const loadAllData = async () => {
+      try {
+        setLoadingData(true)
+        console.log("🚀 CARGANDO DATOS CON VARIABLES RENOMBRADAS...")
+
+        // ✅ 1. Cargar departamentos desde endpoint correcto
+        console.log("📡 Cargando departamentos_persona desde:", `${API_URL}/api/departamentos_persona`)
+        const departamentosResponse = await fetch(`${API_URL}/api/departamentos_persona`)
+        
+        if (departamentosResponse.ok) {
+          const departamentosData = await departamentosResponse.json()
+          console.log("✅ RESPUESTA CRUDA DEPARTAMENTOS_PERSONA:", departamentosData)
+          
+          // Procesar la respuesta para extraer el array
+          let departamentosArray: DepartamentoPersona[] = []
+          
+          if (Array.isArray(departamentosData)) {
+            departamentosArray = departamentosData
+          } else if (departamentosData.data && Array.isArray(departamentosData.data)) {
+            departamentosArray = departamentosData.data
+          } else if (typeof departamentosData === 'object') {
+            // Si es un objeto, intentar extraer valores
+            departamentosArray = Object.values(departamentosData)
+          }
+          
+          console.log("📊 DEPARTAMENTOS_PERSONA PROCESADOS:", departamentosArray.length)
+          console.log("🔍 LISTA COMPLETA DE DEPARTAMENTOS_PERSONA:")
+          departamentosArray.forEach((depto, index) => {
+            console.log(`📍 Depto Persona ${index + 1}:`, depto.id, depto.nombre)
+          })
+          
+          setDepartamentosPersona(departamentosArray)
+        } else {
+          console.error("❌ ERROR CARGANDO DEPARTAMENTOS_PERSONA:", departamentosResponse.status)
+          toast({
+            title: "Error",
+            description: `No se pudieron cargar los departamentos: ${departamentosResponse.status}`,
+            variant: "destructive"
+          })
+          setDepartamentosPersona([])
+        }
+
+        // ✅ 2. Cargar municipios desde endpoint correcto
+        console.log("📡 Cargando municipios_persona desde:", `${API_URL}/api/municipios_persona`)
+        const municipiosResponse = await fetch(`${API_URL}/api/municipios_persona`)
+        
+        if (municipiosResponse.ok) {
+          const municipiosData = await municipiosResponse.json()
+          console.log("✅ RESPUESTA CRUDA MUNICIPIOS_PERSONA:", municipiosData)
+          
+          // Procesar la respuesta para extraer el array
+          let municipiosArray: MunicipioPersona[] = []
+          
+          if (Array.isArray(municipiosData)) {
+            municipiosArray = municipiosData
+          } else if (municipiosData.data && Array.isArray(municipiosData.data)) {
+            municipiosArray = municipiosData.data
+          } else if (typeof municipiosData === 'object') {
+            // Si es un objeto, intentar extraer valores
+            municipiosArray = Object.values(municipiosData)
+          }
+          
+          console.log("📊 MUNICIPIOS_PERSONA PROCESADOS:", municipiosArray.length)
+          setMunicipiosPersona(municipiosArray)
+        } else {
+          console.error("❌ ERROR CARGANDO MUNICIPIOS_PERSONA:", municipiosResponse.status)
+          toast({
+            title: "Error",
+            description: `No se pudieron cargar los municipios: ${municipiosResponse.status}`,
+            variant: "destructive"
+          })
+          setMunicipiosPersona([])
+        }
+
+      } catch (error) {
+        console.error("❌ ERROR GENERAL CARGANDO DATOS:", error)
+        toast({
+          title: "Error de conexión",
+          description: "No se pudieron cargar los datos de referencia. Verifique la conexión.",
+          variant: "destructive"
+        })
+        setDepartamentosPersona([])
+        setMunicipiosPersona([])
+      } finally {
+        setLoadingData(false)
+      }
+    }
+
+    loadAllData()
+  }, [toast])
+
+  // ✅ FILTRAR MUNICIPIOS CON VARIABLES RENOMBRADAS
+  useEffect(() => {
+    const departamentoId = form.watch('departamento_id')
+    console.log("🎯 Departamento seleccionado:", departamentoId)
+    
+    if (departamentoId && municipiosPersona.length > 0) {
+      const filtered = municipiosPersona.filter(m => m.Id_departamento === departamentoId)
+      console.log("🏙️ Municipios filtrados para departamento", departamentoId, ":", filtered.length)
+      setMunicipiosFiltradosPersona(filtered)
+      
+      // Limpiar municipio si no pertenece al nuevo departamento
+      const currentMunicipioId = form.watch('municipio_id')
+      if (currentMunicipioId && !filtered.some(m => m.Id === currentMunicipioId)) {
+        form.setValue('municipio_id', undefined)
+        console.log("🔄 Municipio limpiado porque no pertenece al nuevo departamento")
+      }
+    } else {
+      setMunicipiosFiltradosPersona([])
+      if (form.watch('municipio_id')) {
+        form.setValue('municipio_id', undefined)
+      }
+    }
+  }, [form.watch('departamento_id'), municipiosPersona, form])
+
+  // ✅ CARGAR DATOS EXISTENTES CON VARIABLES RENOMBRADAS
+  useEffect(() => {
     const dataToLoad = existingPersonData || initialData;
     
-    if (dataToLoad) {
-      console.log("🎯 Cargando datos existentes en formulario:", dataToLoad)
+    if (dataToLoad && departamentosPersona.length > 0 && municipiosPersona.length > 0) {
+      console.log("🎯 CARGANDO DATOS EXISTENTES:", dataToLoad)
       
-      form.reset({
+      const formValues = {
         nombres: dataToLoad.nombres || dataToLoad.nombre || "",
         apellidos: dataToLoad.apellidos || dataToLoad.apellido || "",
         fecha_nacimiento: dataToLoad.fecha_nacimiento ? dataToLoad.fecha_nacimiento.split('T')[0] : "",
@@ -112,18 +249,20 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
         contacto_emergencia_nombre: dataToLoad.contacto_emergencia_nombre || "",
         contacto_emergencia_relacion: dataToLoad.contacto_emergencia_relacion || "",
         contacto_emergencia_telefono: dataToLoad.contacto_emergencia_telefono || "",
-      })
+      }
 
+      console.log("📝 VALORES DEL FORMULARIO:", formValues)
+      form.reset(formValues)
       setHasExistingData(true)
       
       toast({
-        title: "Datos cargados automáticamente",
-        description: "Sus datos han sido precargados. Puede editarlos si es necesario.",
+        title: "Datos cargados",
+        description: "Sus datos han sido precargados correctamente",
       })
     }
-  }, [existingPersonData, initialData, form, toast])
+  }, [existingPersonData, initialData, form, toast, departamentosPersona, municipiosPersona])
 
-  // Buscar persona existente
+  // BUSCAR PERSONA EXISTENTE
   const handleSearchPerson = async () => {
     if (!searchValue.trim()) {
       toast({
@@ -174,10 +313,9 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
         })
 
         setHasExistingData(true)
-
         toast({
           title: "Persona encontrada",
-          description: "Los datos han sido cargados en el formulario",
+          description: "Los datos han sido cargados exitosamente",
         })
       } else {
         toast({
@@ -198,22 +336,20 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
     }
   }
 
-  // Guardar o actualizar persona
+  // GUARDAR PERSONA
   const onSubmit = async (data: PersonFormValues) => {
     setLoading(true)
     
     try {
-      // Usar UPSERT para crear o actualizar
       const result = await personService.upsert(data)
       
       toast({
         title: hasExistingData ? "Datos actualizados" : "Registro exitoso",
         description: hasExistingData 
-          ? "Sus datos han sido actualizados. Continúe con la matrícula." 
-          : "Sus datos personales han sido guardados correctamente.",
+          ? "Sus datos han sido actualizados correctamente" 
+          : "Sus datos personales han sido guardados exitosamente",
       })
       
-      // Pasar los datos completos de la persona (incluyendo ID y código)
       onSuccess({
         ...result,
         codigo: result.codigo_persona,
@@ -234,9 +370,23 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
     }
   }
 
+  if (loadingData) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Cargando datos de referencia...</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Departamentos: {departamentosPersona.length} | Municipios: {municipiosPersona.length}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col lg:flex-row gap-6 w-full max-w-full">
-      {/* Columna izquierda - Información del curso (si existe) */}
+      {/* Información del curso */}
       {course && (
         <div className="lg:flex-1 min-w-0">
           <Card className="h-full">
@@ -286,7 +436,7 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
         </div>
       )}
 
-      {/* Columna derecha - Formulario de persona COMPLETO */}
+      {/* Formulario de persona */}
       <div className={course ? "lg:flex-[2] min-w-0" : "w-full"}>
         <Card className="h-full">
           <CardHeader>
@@ -312,7 +462,7 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* ✅ MOSTRAR BÚSQUEDA SOLO SI NO HAY DATOS EXISTENTES */}
+            {/* Búsqueda solo si no hay datos existentes */}
             {!hasExistingData && !initialData && (
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
@@ -350,10 +500,20 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
               </div>
             )}
 
+            {/* DEBUG INFO - CON VARIABLES RENOMBRADAS */}
+            <div className="p-3 bg-gray-50 border border-gray-200 rounded text-xs">
+              <p><strong>Estado de datos (VARIABLES RENOMBRADAS):</strong></p>
+              <p>Departamentos Persona: {departamentosPersona.length}</p>
+              <p>Municipios Persona: {municipiosPersona.length}</p>
+              <p>Municipios Filtrados Persona: {municipiosFiltradosPersona.length}</p>
+              <p>Depto seleccionado: {form.watch('departamento_id') || 'Ninguno'}</p>
+              <p>Muni seleccionado: {form.watch('municipio_id') || 'Ninguno'}</p>
+            </div>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                {/* Resto del formulario igual que antes */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* SECCIÓN DE INFORMACIÓN PERSONAL BÁSICA */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="nombres"
@@ -361,13 +521,13 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
                       <FormItem>
                         <FormLabel>Nombres *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Sus nombres" {...field} />
+                          <Input placeholder="Ingrese sus nombres" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="apellidos"
@@ -375,7 +535,23 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
                       <FormItem>
                         <FormLabel>Apellidos *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Sus apellidos" {...field} />
+                          <Input placeholder="Ingrese sus apellidos" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="numero_cedula"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Número de Cédula *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ingrese su cédula" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -387,7 +563,7 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
                     name="fecha_nacimiento"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Fecha Nacimiento *</FormLabel>
+                        <FormLabel>Fecha de Nacimiento *</FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
                         </FormControl>
@@ -397,8 +573,203 @@ export function PersonForm({ course, onSuccess, initialData, existingPersonData 
                   />
                 </div>
 
-                {/* ... resto de los campos del formulario igual que antes ... */}
-                
+                {/* SECCIÓN DE CONTACTO */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email *</FormLabel>
+                        <FormControl>
+                          <Input type="email" placeholder="correo@ejemplo.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="telefono_movil"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Teléfono Móvil *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="8888-8888" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* ✅ SECCIÓN DE UBICACIÓN - CON VARIABLES RENOMBRADAS */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* ✅ DEPARTAMENTO - USA VARIABLES RENOMBRADAS */}
+                  <FormField
+                    control={form.control}
+                    name="departamento_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Departamento</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            const numValue = parseInt(value)
+                            field.onChange(numValue)
+                            console.log("📍 Departamento seleccionado:", numValue)
+                          }} 
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccione departamento">
+                                {field.value && departamentosPersona.find(d => d.id === field.value)?.nombre}
+                              </SelectValue>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {departamentosPersona.map((depto) => (
+                              <SelectItem key={depto.id} value={depto.id.toString()}>
+                                {depto.nombre}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* ✅ MUNICIPIO - USA VARIABLES RENOMBRADAS */}
+                  <FormField
+                    control={form.control}
+                    name="municipio_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Municipio</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            const numValue = parseInt(value)
+                            field.onChange(numValue)
+                            console.log("🏙️ Municipio seleccionado:", numValue)
+                          }} 
+                          value={field.value?.toString()}
+                          disabled={!form.watch('departamento_id') || municipiosFiltradosPersona.length === 0}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder={
+                                !form.watch('departamento_id') 
+                                  ? "Seleccione departamento primero" 
+                                  : municipiosFiltradosPersona.length === 0
+                                  ? "No hay municipios disponibles"
+                                  : "Seleccione municipio"
+                              }>
+                                {field.value && municipiosFiltradosPersona.find(m => m.Id === field.value)?.Nombre}
+                              </SelectValue>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {municipiosFiltradosPersona.map((municipio) => (
+                              <SelectItem key={municipio.Id} value={municipio.Id.toString()}>
+                                {municipio.Nombre}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="direccion_completa"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dirección Completa</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Ingrese su dirección completa..." 
+                          className="resize-none"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* SECCIÓN ADICIONAL */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="genero"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Género</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccione género" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="M">Masculino</SelectItem>
+                            <SelectItem value="F">Femenino</SelectItem>
+                            <SelectItem value="O">Otro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="nacionalidad"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nacionalidad</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="idioma_interes_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Idioma de Interés</FormLabel>
+                        <Select 
+                          onValueChange={(value) => field.onChange(parseInt(value))} 
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccione idioma" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="1">Inglés</SelectItem>
+                            <SelectItem value="2">Francés</SelectItem>
+                            <SelectItem value="3">Portugués</SelectItem>
+                            <SelectItem value="4">Alemán</SelectItem>
+                            <SelectItem value="5">Italiano</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <Button type="submit" disabled={loading} className="w-full">
                   {loading 
                     ? "Procesando..." 

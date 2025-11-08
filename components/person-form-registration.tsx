@@ -1,20 +1,44 @@
-// components/person-form-registration.tsx - CORREGIDO
-"use client"
+// components/person-form-registration.tsx - VERSIÓN SIN IDIOMA, DEPARTAMENTO Y MUNICIPIO
+"use client";
 
-import { useState, useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Curso } from "@/types/course"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { MapPin, Calendar, Clock, Languages, CheckCircle } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Curso } from "@/types/course";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MapPin, Calendar, Clock, Languages, CheckCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import {
+  matriculaService,
+  CreateMatriculaDto,
+} from "@/services/matricula.service";
 
 const personFormSchema = z.object({
   cedula: z.string().min(1, "La cédula es requerida"),
@@ -22,53 +46,51 @@ const personFormSchema = z.object({
   apellido: z.string().min(1, "El apellido es requerido"),
   email: z.string().email("Email inválido"),
   telefono: z.string().min(1, "El teléfono es requerido"),
-  idioma: z.string().min(1, "El idioma es requerido"),
   direccion: z.string().optional(),
-  departamento: z.string().optional(),
-  municipio: z.string().optional(),
-})
+});
 
-type PersonFormValues = z.infer<typeof personFormSchema>
+type PersonFormValues = z.infer<typeof personFormSchema>;
 
 interface PersonFormRegistrationProps {
-  course: Curso | null
-  onSuccess: (data: PersonFormValues) => void
-  existingPersonData?: any 
-  isDataComplete?: boolean
+  course: Curso | null;
+  onSuccess: (data: PersonFormValues) => void;
+  existingPersonData?: any;
+  isDataComplete?: boolean;
 }
 
 interface Idioma {
-  id: number
-  nombre: string
-  codigo: string
-  estado: boolean
+  id: number;
+  nombre: string;
+  codigo: string;
+  estado: boolean;
 }
 
 interface Departamento {
-  id: number
-  nombre: string
-  codigo: string
-  estado: boolean
+  id: number;
+  nombre: string;
+  codigo: string;
+  estado: boolean;
 }
 
 interface Municipio {
-  Id: number
-  Id_departamento: number
-  Codigo: string
-  Nombre: string
-  Estado: number
+  Id: number;
+  Id_departamento: number;
+  Codigo: string;
+  Nombre: string;
+  Estado: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export function PersonFormRegistration({ course, onSuccess, existingPersonData }: PersonFormRegistrationProps) {
-  const [loading, setLoading] = useState(false)
-  const [hasExistingData, setHasExistingData] = useState(false)
-  const [idiomas, setIdiomas] = useState<Idioma[]>([])
-  const [departamentos, setDepartamentos] = useState<Departamento[]>([])
-  const [municipios, setMunicipios] = useState<Municipio[]>([])
-  const [loadingData, setLoadingData] = useState(true)
-  const { toast } = useToast()
+export function PersonFormRegistration({
+  course,
+  onSuccess,
+  existingPersonData,
+}: PersonFormRegistrationProps) {
+  const [loading, setLoading] = useState(false);
+  const [hasExistingData, setHasExistingData] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
+  const { toast } = useToast();
 
   const form = useForm<PersonFormValues>({
     resolver: zodResolver(personFormSchema),
@@ -78,165 +100,123 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
       apellido: "",
       email: "",
       telefono: "",
-      idioma: "",
       direccion: "",
-      departamento: "",
-      municipio: "",
     },
-  })
+  });
 
-  // Función para obtener el nombre del idioma por ID - CORREGIDA
-  const getIdiomaNombre = (idiomaId: string | undefined) => {
-    if (!idiomaId) return ""
-    const idioma = idiomas.find(i => i.id.toString() === idiomaId)
-    return idioma ? idioma.nombre : ""
-  }
-
-  // Función para obtener el nombre del departamento por ID - CORREGIDA
-  const getDepartamentoNombre = (departamentoId: string | undefined) => {
-    if (!departamentoId) return ""
-    const departamento = departamentos.find(d => d.id.toString() === departamentoId)
-    return departamento ? departamento.nombre : ""
-  }
-
-  // Cargar datos de los endpoints
+  // Cargar datos existentes si los hay
   useEffect(() => {
-    const fetchData = async () => {
+    const loadExistingData = async () => {
       try {
-        setLoadingData(true)
-        console.log("📡 Cargando datos de endpoints...")
+        setLoadingData(true);
 
-        const [idiomasResponse, departamentosResponse, municipiosResponse] = await Promise.all([
-          fetch(`${API_URL}/idiomas`),
-          fetch(`${API_URL}/departmentos`),
-          fetch(`${API_URL}/municipios`)
-        ])
+        // Si tenemos datos existentes, cargar datos completos de persona
+        if (existingPersonData?.id) {
+          console.log(
+            "🎯 Cargando datos completos de persona ID:",
+            existingPersonData.id
+          );
+          try {
+            const personaResponse = await fetch(
+              `${API_URL}/personas/${existingPersonData.id}`
+            );
+            if (personaResponse.ok) {
+              const personaData = await personaResponse.json();
+              console.log("✅ Datos completos de persona:", personaData);
 
-        if (!idiomasResponse.ok) throw new Error('Error cargando idiomas')
-        if (!departamentosResponse.ok) throw new Error('Error cargando departamentos')
-        if (!municipiosResponse.ok) throw new Error('Error cargando municipios')
+              // Pre-llenar formulario inmediatamente
+              form.reset({
+                cedula: personaData.numero_cedula || "",
+                nombre: personaData.nombres || "",
+                apellido: personaData.apellidos || "",
+                email: personaData.email || "",
+                telefono: personaData.telefono_movil || "",
+                direccion: personaData.direccion_completa || "",
+              });
 
-        const [idiomasData, departamentosData, municipiosData] = await Promise.all([
-          idiomasResponse.json(),
-          departamentosResponse.json(),
-          municipiosResponse.json()
-        ])
-
-        setIdiomas(idiomasData)
-        setDepartamentos(departamentosData)
-        setMunicipios(municipiosData)
-
-        console.log("✅ Datos cargados:", {
-          idiomas: idiomasData,
-          departamentos: departamentosData,
-          municipios: municipiosData
-        })
-
+              setHasExistingData(true);
+              console.log("✅ Formulario pre-llenado con datos básicos");
+            } else {
+              console.error("❌ Error cargando datos de persona");
+            }
+          } catch (error) {
+            console.error("❌ Error fetch persona:", error);
+          }
+        } else {
+          console.log(
+            "ℹ️ No hay existingPersonData.id, saltando carga de persona"
+          );
+        }
       } catch (error) {
-        console.error("❌ Error cargando datos:", error)
+        console.error("❌ Error general cargando datos:", error);
         toast({
           title: "Error",
-          description: "No se pudieron cargar los datos de referencia",
-          variant: "destructive"
-        })
+          description: "No se pudieron cargar los datos de la persona",
+          variant: "destructive",
+        });
       } finally {
-        setLoadingData(false)
+        setLoadingData(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [toast])
-
-  // Cargar datos existentes
-  useEffect(() => {
-    if (existingPersonData && !loadingData) {
-      console.log("🎯 Cargando datos existentes:", existingPersonData)
-      
-      form.reset({
-        cedula: existingPersonData.numero_cedula || existingPersonData.cedula || "",
-        nombre: existingPersonData.nombres || existingPersonData.nombre || "",
-        apellido: existingPersonData.apellidos || existingPersonData.apellido || "",
-        email: existingPersonData.email || "",
-        telefono: existingPersonData.telefono_movil || existingPersonData.telefono || "",
-        // Guardar IDs como strings
-        idioma: existingPersonData.idioma_interes_id ? existingPersonData.idioma_interes_id.toString() : "",
-        departamento: existingPersonData.departamento_id ? existingPersonData.departamento_id.toString() : "",
-        municipio: existingPersonData.municipio || "",
-        direccion: existingPersonData.direccion_completa || existingPersonData.direccion || "",
-      })
-
-      setHasExistingData(true)
-      
-      // DEBUG después de cargar
-      setTimeout(() => {
-        const currentValues = form.getValues()
-        console.log("🔍 DEBUG - Valores en el formulario:", {
-          idioma: currentValues.idioma,
-          idiomaNombre: getIdiomaNombre(currentValues.idioma),
-          departamento: currentValues.departamento,
-          departamentoNombre: getDepartamentoNombre(currentValues.departamento),
-          municipio: currentValues.municipio
-        })
-      }, 200)
-      
-      toast({
-        title: "Datos cargados automáticamente",
-        description: "Sus datos han sido precargados",
-      })
-    }
-  }, [existingPersonData, form, toast, loadingData])
+    loadExistingData();
+  }, [existingPersonData, form, toast]);
 
   const onSubmit = async (data: PersonFormValues) => {
-    setLoading(true)
-    console.log("📤 Enviando datos:", data)
-    
-    setTimeout(() => {
-      setLoading(false)
+    setLoading(true);
+
+    try {
+      // 1. Preparar datos para la matrícula
+      const matriculaData: CreateMatriculaDto = {
+        persona_id: existingPersonData?.id || 0, // Si no hay persona_id, usar 0 temporalmente
+        curso_id: course?.id || 0,
+        cedula: data.cedula,
+        nombre: data.nombre,
+        apellido: data.apellido,
+        email: data.email,
+        telefono: data.telefono,
+        direccion: data.direccion,
+        estado_matricula: "PENDIENTE",
+        observaciones: `Matrícula creada desde formulario - ${new Date().toLocaleString()}`,
+      };
+
+      console.log("📤 Guardando matrícula:", matriculaData);
+
+      // 2. Guardar en la base de datos
+      const matriculaGuardada = await matriculaService.create(matriculaData);
+
+      console.log("✅ Matrícula guardada:", matriculaGuardada);
+
       toast({
-        title: hasExistingData ? "Datos actualizados" : "Datos guardados",
-        description: hasExistingData 
-          ? "Sus datos han sido actualizados. Continúe con la matrícula." 
-          : "Sus datos han sido guardados. Continúe con la matrícula.",
-      })
-      onSuccess(data)
-    }, 1000)
-  }
+        title: "¡Matrícula exitosa!",
+        description: "Su matrícula ha sido registrada correctamente",
+      });
 
-  const handleUseExistingData = () => {
-    if (existingPersonData && !loadingData) {
-      const dataToSend = {
-        cedula: existingPersonData.numero_cedula || existingPersonData.cedula || "",
-        nombre: existingPersonData.nombres || existingPersonData.nombre || "",
-        apellido: existingPersonData.apellidos || existingPersonData.apellido || "",
-        email: existingPersonData.email || "",
-        telefono: existingPersonData.telefono_movil || existingPersonData.telefono || "",
-        idioma: existingPersonData.idioma_interes_id ? existingPersonData.idioma_interes_id.toString() : "",
-        departamento: existingPersonData.departamento_id ? existingPersonData.departamento_id.toString() : "",
-        municipio: existingPersonData.municipio || "",
-        direccion: existingPersonData.direccion_completa || existingPersonData.direccion || "",
-      }
-      console.log("🚀 Usando datos existentes:", dataToSend)
-      onSuccess(dataToSend)
+      // 3. Notificar al componente padre
+      onSuccess(data);
+    } catch (error) {
+      console.error("❌ Error guardando matrícula:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo completar la matrícula. Intente nuevamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  }
-
-  // Filtrar municipios por departamento seleccionado
-  const municipiosFiltrados = municipios.filter(m => {
-    const departamentoId = form.watch('departamento')
-    if (!departamentoId) return false
-    const departamentoSeleccionado = departamentos.find(d => d.id.toString() === departamentoId)
-    return departamentoSeleccionado ? m.Id_departamento === departamentoSeleccionado.id : false
-  })
+  };
 
   if (loadingData) {
     return (
       <div className="flex justify-center items-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">Cargando datos de referencia...</p>
+          <p className="mt-2 text-muted-foreground">
+            Cargando datos de persona...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -254,7 +234,7 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                 <h3 className="font-semibold text-lg">{course.nombre}</h3>
                 <p className="text-sm text-muted-foreground">{course.codigo}</p>
               </div>
-              
+
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-primary" />
@@ -302,47 +282,15 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                   Complete su información personal para matricularse en el curso
                 </CardDescription>
               </div>
-              {hasExistingData && (
-                <Badge className="bg-green-100 text-green-800">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Datos cargados
-                </Badge>
-              )}
+             
             </div>
           </CardHeader>
           <CardContent>
-            {existingPersonData && !hasExistingData && (
-              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800 mb-2">
-                  <strong>¡Tiene datos guardados!</strong> Puede usar sus datos existentes.
-                </p>
-                <Button 
-                  onClick={handleUseExistingData} 
-                  variant="outline" 
-                  size="sm"
-                  className="gap-2"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Usar mis datos guardados
-                </Button>
-              </div>
-            )}
-
-            {/* DEBUG INFO MEJORADA - CORREGIDA */}
-            {hasExistingData && (
-              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                <p className="font-semibold">Debug Info - Valores actuales:</p>
-                <p>Idioma ID: "{form.watch('idioma')}"</p>
-                <p>Idioma Nombre: "{getIdiomaNombre(form.watch('idioma'))}"</p>
-                <p>Departamento ID: "{form.watch('departamento')}"</p>
-                <p>Departamento Nombre: "{getDepartamentoNombre(form.watch('departamento'))}"</p>
-                <p>Municipio: "{form.watch('municipio')}"</p>
-                <p>Idiomas disponibles: {idiomas.length}</p>
-              </div>
-            )}
-
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   {/* Primera columna */}
                   <div className="space-y-4">
@@ -359,7 +307,7 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                         </FormItem>
                       )}
                     />
-                    
+
                     <FormField
                       control={form.control}
                       name="nombre"
@@ -387,7 +335,10 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                         </FormItem>
                       )}
                     />
+                  </div>
 
+                  {/* Segunda columna - SIN LOS COMBOS ELIMINADOS */}
+                  <div className="space-y-4">
                     <FormField
                       control={form.control}
                       name="email"
@@ -401,10 +352,7 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  {/* Segunda columna */}
-                  <div className="space-y-4">
                     <FormField
                       control={form.control}
                       name="telefono"
@@ -412,112 +360,11 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                         <FormItem>
                           <FormLabel>Teléfono *</FormLabel>
                           <FormControl>
-                            <Input placeholder="Número de teléfono" {...field} />
+                            <Input
+                              placeholder="Número de teléfono"
+                              {...field}
+                            />
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* IDIOMA - SOLUCIÓN DEFINITIVA */}
-                    <FormField
-                      control={form.control}
-                      name="idioma"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Idioma de Interés *</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
-                            value={field.value}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleccione idioma">
-                                  {field.value ? (
-                                    <span>{getIdiomaNombre(field.value)}</span>
-                                  ) : null}
-                                </SelectValue>
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {idiomas.map((idioma) => (
-                                <SelectItem key={idioma.id} value={idioma.id.toString()}>
-                                  {idioma.nombre}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* DEPARTAMENTO - MISMOS PRINCIPIOS */}
-                    <FormField
-                      control={form.control}
-                      name="departamento"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Departamento</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
-                            value={field.value}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleccione departamento">
-                                  {field.value ? (
-                                    <span>{getDepartamentoNombre(field.value)}</span>
-                                  ) : null}
-                                </SelectValue>
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {departamentos.map((departamento) => (
-                                <SelectItem key={departamento.id} value={departamento.id.toString()}>
-                                  {departamento.nombre}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="municipio"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Municipio</FormLabel>
-                          <Select 
-                            onValueChange={field.onChange} 
-                            value={field.value}
-                            defaultValue={field.value}
-                            disabled={!form.watch('departamento')}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder={
-                                  !form.watch('departamento') 
-                                    ? "Seleccione departamento primero" 
-                                    : municipiosFiltrados.length === 0
-                                    ? "No hay municipios disponibles"
-                                    : "Seleccione municipio"
-                                } />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {municipiosFiltrados.map((municipio) => (
-                                <SelectItem key={municipio.Id} value={municipio.Nombre}>
-                                  {municipio.Nombre}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -532,10 +379,10 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                     <FormItem>
                       <FormLabel>Dirección Completa</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Dirección completa de residencia" 
+                        <Textarea
+                          placeholder="Dirección completa de residencia"
                           className="min-h-[100px]"
-                          {...field} 
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -543,17 +390,12 @@ export function PersonFormRegistration({ course, onSuccess, existingPersonData }
                   )}
                 />
 
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading 
-                    ? "Procesando..." 
-                    : hasExistingData ? "Actualizar y Continuar" : "Continuar a Matrícula"
-                  }
-                </Button>
+             
               </form>
             </Form>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }
