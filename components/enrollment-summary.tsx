@@ -384,7 +384,7 @@ export function EnrollmentSummary({
                 </span>
                 <span className="flex items-center gap-1">
                   <CheckCircle className="h-3 w-3 text-green-500" />
-                  Información completa
+                  Información completa....
                 </span>
               </div>
             </div>
